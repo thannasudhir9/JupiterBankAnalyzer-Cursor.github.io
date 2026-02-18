@@ -1,4 +1,6 @@
 /**
  * API configuration (sensitive - in .gitignore)
+ * https://ai.google.dev/gemini-api/docs/api-key
  */
-window.GEMINI_API_KEY = 'AIzaSyDYheGGLdE7CU11qeWHELRBzX1qeJ1XVAY';
+window.GEMINI_API_KEY = '';
+
