@@ -265,7 +265,14 @@
     .btn-outline-secondary:hover { background: var(--bg-secondary) !important; border-color: var(--border) !important; color: var(--text-primary) !important; }
     .btn-check:checked + .btn-outline-secondary { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
     .text-muted { color: var(--text-secondary) !important; }
-    .app-toast { position: fixed !important; bottom: 1.5rem; right: 1.5rem; z-index: 1100; }
+    .app-toast { 
+      position: fixed !important; bottom: 4rem; right: 1.5rem; z-index: 1100;
+      opacity: 0; transform: translateY(100px); pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .app-toast.visible {
+      opacity: 1; transform: translateY(0); pointer-events: auto;
+    }
 
     .nav-tabs { border-color: var(--border) !important; }
     .nav-tabs .nav-link { color: var(--text-secondary) !important; background: transparent !important; border-color: transparent !important; }
@@ -543,6 +550,20 @@
     @media (prefers-color-scheme: dark) {
       [data-theme="system"] #aiApiKeyModal .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
     }
+
+    /* Fixed footer - always visible at bottom */
+    .app-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--bg-card);
+      color: var(--text-primary) !important;
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+    }
+    body { padding-bottom: 52px; }
   </style>
 </head>
 <body>
@@ -777,6 +798,10 @@
       </div>
     </div>
   </div>
+
+  <footer class="app-footer text-center small py-3">
+    v1.2.0 &middot; Last updated 18 Feb 2026, 12:00 PM &middot; Sudhir Kumar Thanna
+  </footer>
 
   <div class="app-toast alert alert-success shadow-lg" id="toast"><i class="bi bi-check-circle me-2"></i>Copied to clipboard!</div>
 
