@@ -358,6 +358,7 @@
     .chat-msg { margin-bottom: 1rem; padding: 0.6rem 0.9rem; border-radius: 10px; max-width: 90%; }
     .chat-msg.user { background: rgba(59, 130, 246, 0.2); margin-left: auto; border-bottom-right-radius: 4px; }
     .chat-msg.assistant { background: var(--bg-secondary); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .chat-msg.chat-waiting .msg-body { color: var(--text-secondary) !important; }
     .chat-msg .msg-time { font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.25rem; }
     .chat-msg .msg-body { font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
     .chat-msg.assistant .msg-body { font-family: inherit; }
@@ -623,6 +624,16 @@
           <p class="mb-2 small text-muted">
             Get a free API key: <a href="https://aistudio.google.com/app/api-keys" target="_blank" rel="noopener">Google AI Studio → API Keys</a> &nbsp;·&nbsp; <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" rel="noopener">Docs</a>
           </p>
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            <label class="small mb-0" for="geminiModelSelect">Model:</label>
+            <select class="form-select form-select-sm" id="geminiModelSelect" style="width: auto; max-width: 220px;">
+              <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash (default)</option>
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+              <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+              <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+              <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+            </select>
+          </div>
           <button type="button" class="btn btn-outline-secondary btn-sm" id="changeApiKeyBtn" title="Clear stored key and enter a new one"><i class="bi bi-key me-1"></i>Change API Key</button>
         </div>
       </div>
@@ -722,7 +733,7 @@
           <div class="ai-analysis-scroll-area px-4 pb-4">
             <div id="aiAnalysisLoading" class="text-center py-5">
               <div class="spinner-border text-info mb-3" role="status"></div>
-              <p class="mb-0 text-muted">Analysing with Gemini AI...</p>
+              <p class="mb-0 text-muted">Waiting for Gemini response... <span id="aiAnalysisTimer">0</span>s</p>
             </div>
             <div id="aiAnalysisContent" class="ai-analysis-prose d-none"></div>
             <div id="aiAnalysisError" class="alert alert-danger d-none"></div>
@@ -1171,7 +1182,16 @@
       /\b(federal|hdfc|icici|sbi|axis|kotak|jupiter|yes\s*bank)\s+(bank|ltd|limited)\s+corporate\s+office/i,
       /federal\s*towers|1800\s*\d{3}\s*\d{4}\s*$/i,
       /^\s*\d{4,5}\s+\d{6,7}\s*$/,
-      /^\s*[\d\s]+\s*$/
+      /^\s*[\d\s]+\s*$/,
+      /\bdisclaimer\b/i,
+      /computer\s*generated\s*statement/i,
+      /cbs\s*system|day\s*end\s*operations|previous\s*working\s*day/i,
+      /shall\s*not\s*be\s*liable|need\s*not\s*normally\s*be\s*signed|no\s*error\s*reported\s*within\s*\d+\s*days/i,
+      /\*\*\*\s*end\s*of\s*statement\s*\*\*\*/i,
+      /page\s+\d+\s+of\s+\d+/i,
+      /phone\s*number\s*:\s*\d[\d\s\-]+/i,
+      /website\s*:\s*www\.\S+/i,
+      /^\d{4,5}\s+\d{6,7}\s*$|^www\.\S+\.(co\.in|com)\s*$/i
     ];
 
     function isHeaderOrFooterRow(cells) {
@@ -1701,6 +1721,8 @@
     summaryClose.addEventListener('click', () => summarySection.classList.add('d-none'));
 
     const GEMINI_STORAGE_KEY = 'gemini-api-key';
+    const GEMINI_MODEL_STORAGE_KEY = 'gemini-model';
+    const GEMINI_MODEL_DEFAULT = 'gemini-2.5-flash';
     const aiApiKeyModal = new bootstrap.Modal(document.getElementById('aiApiKeyModal'));
     const aiAnalysisSection = document.getElementById('aiAnalysisSection');
     const aiAnalysisClose = document.getElementById('aiAnalysisClose');
@@ -1716,15 +1738,15 @@
       return localStorage.getItem(GEMINI_STORAGE_KEY) || '';
     }
     function setStoredApiKey(key) { if (key) localStorage.setItem(GEMINI_STORAGE_KEY, key); else localStorage.removeItem(GEMINI_STORAGE_KEY); }
-
-    const GEMINI_MODEL = 'gemini-2.5-flash';
+    function getStoredModel() { return localStorage.getItem(GEMINI_MODEL_STORAGE_KEY) || GEMINI_MODEL_DEFAULT; }
+    function setStoredModel(model) { if (model) localStorage.setItem(GEMINI_MODEL_STORAGE_KEY, model); }
 
     async function callGeminiApi(apiKey, prompt) {
+      const model = getStoredModel();
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
-        model: GEMINI_MODEL,
-        contents: prompt,
-        config: { temperature: 0.7, maxOutputTokens: 8192 }
+        model,
+        contents: prompt
       });
       const text = response?.text;
       if (!text) throw new Error('No response from Gemini');
@@ -1851,8 +1873,16 @@ ${txText}`;
       updateAiLogs(prompt, null, null);
       debugLog('Sending request to Gemini', 'active', `${(prompt.length / 1024).toFixed(1)} KB`);
 
+      const timerEl = document.getElementById('aiAnalysisTimer');
+      let elapsed = 0;
+      const timerId = setInterval(() => {
+        elapsed++;
+        if (timerEl) timerEl.textContent = elapsed;
+      }, 1000);
+
       try {
         const result = await callGeminiApi(apiKey, prompt);
+        clearInterval(timerId);
         updateAiLogs(prompt, result, null);
         aiAnalysisLoading.classList.add('d-none');
         aiAnalysisContent.innerHTML = renderMarkdown(result);
@@ -1860,6 +1890,7 @@ ${txText}`;
         aiAnalysisSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         debugLog('AI analysis complete', 'success');
       } catch (err) {
+        clearInterval(timerId);
         const errMsg = err?.message || String(err);
         updateAiLogs(prompt, null, errMsg);
         aiAnalysisLoading.classList.add('d-none');
@@ -1906,12 +1937,31 @@ User question: ${question}`;
       appendAiLogs('Chat', prompt, null, null);
       debugLog('Chat: sending question to Gemini', 'active');
 
+      chatPlaceholder?.classList.add('d-none');
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const waitingDiv = document.createElement('div');
+      waitingDiv.className = 'chat-msg assistant chat-waiting';
+      waitingDiv.innerHTML = `<div class="msg-time">${escapeHtml(time)}</div><div class="msg-body text-muted"><span class="spinner-border spinner-border-sm me-2" role="status"></span>Waiting for Gemini response... <span class="chat-timer">0</span>s</div>`;
+      chatMessages.appendChild(waitingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      let elapsed = 0;
+      const chatTimerEl = waitingDiv.querySelector('.chat-timer');
+      const chatTimerId = setInterval(() => {
+        elapsed++;
+        if (chatTimerEl) chatTimerEl.textContent = elapsed;
+      }, 1000);
+
       try {
         const result = await callGeminiApi(apiKey, prompt);
+        clearInterval(chatTimerId);
+        waitingDiv.remove();
         appendAiLogResponse('Chat', result, null);
         appendChatMessage('assistant', result);
         debugLog('Chat: response received', 'success');
       } catch (err) {
+        clearInterval(chatTimerId);
+        waitingDiv.remove();
         const errMsg = err?.message || String(err);
         appendAiLogResponse('Chat', null, errMsg);
         appendChatMessage('assistant', 'Error: ' + errMsg);
@@ -1993,6 +2043,17 @@ User question: ${question}`;
       aiApiKeyModal.show();
       geminiApiKeyInput.focus();
     });
+
+    const geminiModelSelect = document.getElementById('geminiModelSelect');
+    if (geminiModelSelect) {
+      const stored = getStoredModel();
+      if (Array.from(geminiModelSelect.options).some(o => o.value === stored)) {
+        geminiModelSelect.value = stored;
+      }
+      geminiModelSelect.addEventListener('change', () => {
+        setStoredModel(geminiModelSelect.value);
+      });
+    }
 
     geminiApiKeyInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') saveApiKeyAndAnalyseBtn.click();
