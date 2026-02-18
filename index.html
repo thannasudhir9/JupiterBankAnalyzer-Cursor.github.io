@@ -491,6 +491,58 @@
     #aiLogsPanel .card-body { font-family: 'SF Mono', Consolas, monospace; font-size: 0.8rem; white-space: pre-wrap; word-break: break-word; }
     .logs-panel-card .log-section { margin-bottom: 1rem; }
     .logs-panel-card .log-section-title { font-weight: 600; font-size: 0.75rem; text-transform: uppercase; color: var(--accent-muted); margin-bottom: 0.35rem; }
+    #aiSetupCard .card-header { cursor: pointer; user-select: none; }
+    #aiSetupCard .card-header[aria-expanded="false"] .collapse-icon { transform: rotate(-90deg); }
+    #aiSetupCard .collapse-icon { transition: transform 0.2s ease; }
+
+    /* API Key Modal - theme-aware */
+    #aiApiKeyModal .modal-content {
+      background: var(--bg-card);
+      border-color: var(--border);
+      color: var(--text-primary);
+    }
+    #aiApiKeyModal .modal-header {
+      background: var(--bg-secondary);
+      border-color: var(--border);
+      color: var(--text-primary);
+    }
+    #aiApiKeyModal .modal-body {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+    #aiApiKeyModal .modal-body p,
+    #aiApiKeyModal .modal-body .form-check-label {
+      color: var(--text-primary) !important;
+    }
+    #aiApiKeyModal .modal-body .text-muted {
+      color: var(--text-secondary) !important;
+    }
+    #aiApiKeyModal .modal-body a {
+      color: var(--accent);
+    }
+    #aiApiKeyModal .modal-body a:hover {
+      color: var(--accent-hover);
+    }
+    #aiApiKeyModal .modal-footer {
+      background: var(--bg-secondary);
+      border-color: var(--border);
+    }
+    #aiApiKeyModal .modal-title {
+      color: var(--text-primary);
+    }
+    #aiApiKeyModal .btn-close {
+      filter: invert(1) grayscale(100%) brightness(200%);
+    }
+    [data-theme="light"] #aiApiKeyModal .btn-close,
+    [data-theme="system"] #aiApiKeyModal .btn-close {
+      filter: none;
+    }
+    @media (prefers-color-scheme: light) {
+      [data-theme="system"] #aiApiKeyModal .btn-close { filter: none; }
+    }
+    @media (prefers-color-scheme: dark) {
+      [data-theme="system"] #aiApiKeyModal .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+    }
   </style>
 </head>
 <body>
@@ -535,6 +587,22 @@
             </button>
           </div>
           <p class="error-msg text-danger small mt-2" id="errorMsg"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card border shadow-sm mb-4" id="aiSetupCard">
+      <div class="card-header py-2 d-flex justify-content-between align-items-center cursor-pointer" data-bs-toggle="collapse" data-bs-target="#aiSetupBody" aria-expanded="true">
+        <span class="fw-semibold"><i class="bi bi-robot me-2"></i>AI Setup</span>
+        <i class="bi bi-chevron-down collapse-icon"></i>
+      </div>
+      <div class="collapse show" id="aiSetupBody">
+        <div class="card-body py-3">
+          <p class="mb-2 small">To use <strong>Analyse with AI</strong> and <strong>Chat with AI</strong>, enter your Google Gemini API key when prompted. Your key stays in your browser only.</p>
+          <p class="mb-2 small text-muted">
+            Get a free API key: <a href="https://aistudio.google.com/app/api-keys" target="_blank" rel="noopener">Google AI Studio → API Keys</a> &nbsp;·&nbsp; <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" rel="noopener">Docs</a>
+          </p>
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="changeApiKeyBtn" title="Clear stored key and enter a new one"><i class="bi bi-key me-1"></i>Change API Key</button>
         </div>
       </div>
     </div>
@@ -712,20 +780,25 @@
 
   <div class="app-toast alert alert-success shadow-lg" id="toast"><i class="bi bi-check-circle me-2"></i>Copied to clipboard!</div>
 
-  <!-- AI Analysis Modals (API key modal hidden when config key is set) -->
+  <!-- AI API Key Modal -->
   <div class="modal fade" id="aiApiKeyModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><i class="bi bi-key me-2"></i>API Key</h5>
+          <h5 class="modal-title"><i class="bi bi-key me-2"></i>Gemini API Key Required</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p class="text-muted small mb-2">Enter your Gemini API key from <a href="https://aistudio.google.com/" target="_blank" rel="noopener">Google AI Studio</a>.</p>
-          <input type="password" class="form-control" id="geminiApiKeyInput" placeholder="Enter API key" autocomplete="off">
+          <p class="mb-2">Enter your Gemini API key to use AI features. Your key stays in your browser only and is never sent to our servers.</p>
+          <p class="mb-2 small text-muted">
+            <strong>Get a free API key:</strong><br>
+            <a href="https://aistudio.google.com/app/api-keys" target="_blank" rel="noopener">Google AI Studio → API Keys</a> &nbsp;|&nbsp;
+            <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" rel="noopener">API key docs</a>
+          </p>
+          <input type="password" class="form-control" id="geminiApiKeyInput" placeholder="Enter your Gemini API key" autocomplete="off">
           <div class="form-check mt-2">
             <input class="form-check-input" type="checkbox" id="rememberApiKey" checked>
-            <label class="form-check-label" for="rememberApiKey">Remember for this session</label>
+            <label class="form-check-label" for="rememberApiKey">Remember in this browser (localStorage)</label>
           </div>
         </div>
         <div class="modal-footer">
@@ -735,7 +808,6 @@
       </div>
     </div>
   </div>
-  <script src="api-config.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script type="module">
@@ -1616,8 +1688,7 @@
     const aiAnalysisError = document.getElementById('aiAnalysisError');
 
     function getStoredApiKey() {
-      return (typeof window.GEMINI_API_KEY === 'string' && window.GEMINI_API_KEY.trim()) ||
-             localStorage.getItem(GEMINI_STORAGE_KEY) || '';
+      return localStorage.getItem(GEMINI_STORAGE_KEY) || '';
     }
     function setStoredApiKey(key) { if (key) localStorage.setItem(GEMINI_STORAGE_KEY, key); else localStorage.removeItem(GEMINI_STORAGE_KEY); }
 
@@ -1791,6 +1862,7 @@ ${txText}`;
       const apiKey = getStoredApiKey();
       if (!apiKey?.trim()) {
         geminiApiKeyInput.value = '';
+        delete document.getElementById('aiApiKeyModal').dataset.changeKeyOnly;
         aiApiKeyModal.show();
         return;
       }
@@ -1829,6 +1901,7 @@ User question: ${question}`;
       const apiKey = getStoredApiKey();
       if (!apiKey?.trim()) {
         geminiApiKeyInput.value = '';
+        delete document.getElementById('aiApiKeyModal').dataset.changeKeyOnly;
         aiApiKeyModal.show();
         return;
       }
@@ -1866,6 +1939,7 @@ User question: ${question}`;
       const apiKey = getStoredApiKey();
       if (!apiKey?.trim()) {
         geminiApiKeyInput.value = '';
+        delete document.getElementById('aiApiKeyModal').dataset.changeKeyOnly;
         aiApiKeyModal.show();
         return;
       }
@@ -1879,8 +1953,20 @@ User question: ${question}`;
         return;
       }
       if (rememberApiKeyCheck.checked) setStoredApiKey(key);
+      const modalEl = document.getElementById('aiApiKeyModal');
+      const changeKeyOnly = modalEl?.dataset?.changeKeyOnly === 'true';
+      if (changeKeyOnly) delete modalEl.dataset.changeKeyOnly;
       aiApiKeyModal.hide();
-      await runAIAnalysis(key);
+      if (!changeKeyOnly && transactionData?.length) await runAIAnalysis(key);
+    });
+
+    document.getElementById('changeApiKeyBtn')?.addEventListener('click', () => {
+      setStoredApiKey('');
+      geminiApiKeyInput.value = '';
+      rememberApiKeyCheck.checked = true;
+      document.getElementById('aiApiKeyModal').dataset.changeKeyOnly = 'true';
+      aiApiKeyModal.show();
+      geminiApiKeyInput.focus();
     });
 
     geminiApiKeyInput.addEventListener('keydown', (e) => {
@@ -1893,7 +1979,30 @@ User question: ${question}`;
       renderSummary();
       summarySection.scrollIntoView({ behavior: 'auto', block: 'start' });
       await new Promise(r => setTimeout(r, 300));
-      const opt = { margin: 12, filename: 'Bank-Statement-Summary.pdf', image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+
+      const tabPanes = summarySection.querySelectorAll('.tab-pane');
+      const contentEl = document.getElementById('summaryContent');
+      const origTabDisplays = [];
+      const origOverflow = [];
+      const origMaxHeight = [];
+
+      tabPanes.forEach((p, i) => { origTabDisplays[i] = p.style.display; p.style.display = 'block'; });
+      [summarySection, contentEl].filter(Boolean).forEach((el, i) => {
+        origOverflow[i] = el.style.overflow; el.style.overflow = 'visible';
+        origMaxHeight[i] = el.style.maxHeight; el.style.maxHeight = 'none';
+      });
+      contentEl?.querySelectorAll('[style*="max-height"], [style*="overflow"]')?.forEach(el => { el.style.maxHeight = 'none'; el.style.overflow = 'visible'; });
+      Object.values(chartInstances).forEach(c => { if (c) c.resize(); });
+      await new Promise(r => setTimeout(r, 200));
+
+      const opt = {
+        margin: 12,
+        filename: 'Bank-Statement-Summary.pdf',
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, scrollX: 0, scrollY: 0, useCORS: true, allowTaint: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
       try {
         await html2pdf().set(opt).from(summarySection).save();
         toast.classList.add('visible');
@@ -1901,6 +2010,13 @@ User question: ${question}`;
         setTimeout(() => { toast.classList.remove('visible'); toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied to clipboard!'; }, 2500);
       } catch (e) {
         errorMsg.textContent = 'PDF download failed. Try again.';
+      } finally {
+        tabPanes.forEach((p, i) => { p.style.display = origTabDisplays[i] || ''; });
+        [summarySection, contentEl].filter(Boolean).forEach((el, i) => {
+          el.style.overflow = origOverflow[i] || '';
+          el.style.maxHeight = origMaxHeight[i] || '';
+        });
+        Object.values(chartInstances).forEach(c => { if (c) c.resize(); });
       }
     });
 

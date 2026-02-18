@@ -23,9 +23,7 @@ JupiterBankStatementAnalyzer/
 ├── index.html              # Main application (HTML, CSS, JS)
 ├── README.md               # Project overview and quick start
 ├── LICENSE                 # MIT License
-├── api-config.js           # Gemini API key (gitignored, create from api-config.example.js)
-├── api-config.example.js   # Template for API config
-├── .gitignore              # Excludes api-config.js
+├── .gitignore
 ├── docs/
 │   ├── PRD.md              # Product Requirements Document
 │   ├── TECHNICAL.md        # Technical architecture and implementation
@@ -68,14 +66,14 @@ JupiterBankStatementAnalyzer/
 | **Analyse with AI** | Sends transaction data to Gemini; returns thorough analysis with amounts and breakdowns |
 | **Chat with AI** | Q&A interface; suggested questions (monthly spending, top categories, etc.) or free-form |
 | **Response Limit** | maxOutputTokens 8192 for detailed replies |
-| **API Key** | Stored in `api-config.js` (gitignored) or entered in UI; get key at [Google AI Studio](https://aistudio.google.com/) |
+| **API Key** | Enter in app when prompted; get free key at [Google AI Studio](https://aistudio.google.com/app/api-keys) or [docs](https://ai.google.dev/gemini-api/docs/api-key) |
 
 ### Security & Privacy
 
 - **Client-side only** — no PDF data is sent to any server
 - **In-memory processing** — PDF is read in browser memory only
 - **Sensitive data handling** — Account holder info displayed separately with warning; excluded from clipboard copy
-- **AI features** — Transaction data is sent to Google Gemini API; API key stored locally in `api-config.js` (gitignored) or `localStorage`
+- **AI features** — Transaction data is sent to Google Gemini API; API key entered by user and stored in `localStorage` only
 
 ---
 
@@ -160,7 +158,7 @@ JupiterBankStatementAnalyzer/
 
 ### AI Analysis Setup (Optional)
 
-To use **Analyse with AI** without entering a key each time: copy `api-config.example.js` to `api-config.js` and add your Gemini API key. The file `api-config.js` is in `.gitignore` and will not be committed.
+When you click **Analyse with AI** or **Chat with AI**, you'll be prompted for your Gemini API key. Get a free key at [Google AI Studio → API Keys](https://aistudio.google.com/app/api-keys) or see the [API key docs](https://ai.google.dev/gemini-api/docs/api-key). Your key is stored in your browser (`localStorage`) and never sent to our servers.
 
 ### Verification
 
@@ -238,3 +236,67 @@ To use **Analyse with AI** without entering a key each time: copy `api-config.ex
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
+
+
+
+Logs :
+
+http://localhost:8765/
+
+cd /Users/sthanna/Downloads/VSCode-NewMac/JupiterBankStatementAnalyzer && python3 -m http.server 8765
+::1 - - [18/Feb/2026 09:54:41] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 09:54:42] code 404, message File not found
+::1 - - [18/Feb/2026 09:54:42] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 09:57:55] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 09:57:55] code 404, message File not found
+::1 - - [18/Feb/2026 09:57:55] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 10:04:04] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:11:16] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:11:17] code 404, message File not found
+::1 - - [18/Feb/2026 10:11:17] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 10:19:48] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:19:49] code 404, message File not found
+::1 - - [18/Feb/2026 10:19:49] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 10:21:11] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:21:12] code 404, message File not found
+::1 - - [18/Feb/2026 10:21:12] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 10:23:32] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:23:32] code 404, message File not found
+::1 - - [18/Feb/2026 10:23:32] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 10:27:56] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:27:57] code 404, message File not found
+::1 - - [18/Feb/2026 10:27:57] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 10:30:42] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:30:43] code 404, message File not found
+::1 - - [18/Feb/2026 10:30:43] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 10:30:43] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:30:44] code 404, message File not found
+::1 - - [18/Feb/2026 10:30:44] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 10:33:41] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:33:42] code 404, message File not found
+::1 - - [18/Feb/2026 10:33:42] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 10:36:23] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:36:23] code 404, message File not found
+::1 - - [18/Feb/2026 10:36:23] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 10:41:28] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:41:28] "GET /api-config.js HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:41:30] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:41:30] "GET /api-config.js HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:41:30] code 404, message File not found
+::1 - - [18/Feb/2026 10:41:30] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 10:43:49] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:43:49] "GET /api-config.js HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:43:50] code 404, message File not found
+::1 - - [18/Feb/2026 10:43:50] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 10:48:50] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:48:50] "GET /api-config.js HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:48:51] code 404, message File not found
+::1 - - [18/Feb/2026 10:48:51] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 10:53:24] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:53:24] "GET /api-config.js HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 10:53:24] code 404, message File not found
+::1 - - [18/Feb/2026 10:53:24] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [18/Feb/2026 11:04:48] "GET / HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 11:04:48] "GET /api-config.js HTTP/1.1" 200 -
+::1 - - [18/Feb/2026 11:04:50] code 404, message File not found
+::1 - - [18/Feb/2026 11:04:50] "GET /favicon.ico HTTP/1.1" 404 -

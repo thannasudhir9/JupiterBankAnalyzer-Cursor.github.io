@@ -1,6 +1,6 @@
 /**
- * API configuration (sensitive - do not commit with real keys)
- * Copy this file to api-config.js and add your Gemini API key.
- * Get a key at https://aistudio.google.com/
+ * DEPRECATED: API key is now entered in the app.
+ * When you use "Analyse with AI" or "Chat with AI", you'll be prompted for your Gemini API key.
+ * Get a free key: https://aistudio.google.com/app/api-keys
+ * Docs: https://ai.google.dev/gemini-api/docs/api-key
  */
-window.GEMINI_API_KEY = '';

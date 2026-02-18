@@ -5,6 +5,21 @@
 
 ---
 
+## February 18, 2026
+
+### Entry: API Key Security Fix
+**Prompt:**
+> API key was leaked via public GitHub repo. Make API key fully user-entered; remove api-config.js reliance; add info card with links for getting a key.
+
+**Solution:**
+- Removed `api-config.js` script tag; API key now comes only from user input and localStorage.
+- Removed `window.GEMINI_API_KEY` from `getStoredApiKey()`.
+- Added **AI Setup** collapsible card on the page with links to [Google AI Studio API Keys](https://aistudio.google.com/app/api-keys) and [API key docs](https://ai.google.dev/gemini-api/docs/api-key).
+- Updated API key modal with both links and clearer instructions.
+- Updated README, TECHNICAL.md, ARCHITECTURE.md; deprecated api-config.example.js.
+
+---
+
 ## February 19, 2025
 
 ### Entry 4  

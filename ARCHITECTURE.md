@@ -187,8 +187,6 @@ JupiterBankStatementAnalyzer/
 │           ├── debugLog, debugClear, updateAiLogs, appendAiLogs
 │           └── copy button handler
 │
-├── api-config.js              # Gemini API key (gitignored)
-├── api-config.example.js      # Template
 ├── .gitignore
 ├── README.md
 └── docs/
@@ -265,7 +263,7 @@ PDF File (binary)
 | PDF content exposure | Processed only in browser; never sent to server |
 | AI (Gemini) | Transaction data sent to Google; API key local only |
 | Password handling | Used only for PDF.js decrypt; not stored or transmitted |
-| API key | api-config.js in .gitignore; optional localStorage |
+| API key | User-entered; stored in localStorage only |
 | XSS | `escapeHtml()` used for user-generated content in DOM |
 | Sensitive data in copy | Only transactions copied; personal info excluded |
 

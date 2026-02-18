@@ -196,7 +196,7 @@ Date	Narration	Debit	Credit	Balance
 
 - **Model**: `gemini-2.5-flash`
 - **Config**: `temperature: 0.7`, `maxOutputTokens: 8192`
-- **API Key**: From `window.GEMINI_API_KEY` (api-config.js) or localStorage
+- **API Key**: User-entered in modal; stored in localStorage only
 
 ### PDF Probe Flow (`handleFile`)
 
