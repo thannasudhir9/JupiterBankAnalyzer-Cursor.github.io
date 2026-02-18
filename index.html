@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bank Statement Analyzer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #0f1419;
+      --bg-secondary: #1a2332;
+      --bg-card: #1e2a3a;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-muted: #60a5fa;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border: #334155;
+      --success: #22c55e;
+      --error: #ef4444;
+      --body-bg: #0f1419;
+    }
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #f1f5f9;
+      --bg-card: #ffffff;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-muted: #3b82f6;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+      --success: #16a34a;
+      --error: #dc2626;
+      --body-bg: #f8fafc;
+    }
+    @media (prefers-color-scheme: dark) {
+      [data-theme="system"] {
+        --bg-primary: #0f1419;
+        --bg-secondary: #1a2332;
+        --bg-card: #1e2a3a;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --border: #334155;
+        --body-bg: #0f1419;
+      }
+    }
+    @media (prefers-color-scheme: light) {
+      [data-theme="system"] {
+        --bg-primary: #f8fafc;
+        --bg-secondary: #f1f5f9;
+        --bg-card: #ffffff;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --border: #e2e8f0;
+        --body-bg: #f8fafc;
+      }
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--body-bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(99, 102, 241, 0.08), transparent);
+    }
+
+    .container, .container.container-lg {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .upload-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 3rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: var(--bg-secondary);
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(59, 130, 246, 0.08);
+    }
+    .upload-zone.uploaded {
+      border-style: solid;
+      border-color: var(--success);
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.7;
+    }
+
+    .upload-zone input[type="file"] {
+      display: none;
+    }
+
+    .file-name {
+      font-weight: 500;
+      color: var(--accent-muted);
+      margin-top: 0.5rem;
+    }
+
+    .password-section.visible {
+      display: flex !important;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .error-msg {
+      color: var(--error);
+      font-size: 0.9rem;
+      margin-top: 0.75rem;
+    }
+
+    .results-section {
+      display: none;
+      margin-top: 2rem;
+    }
+
+    .results-section.visible {
+      display: block;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .results-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .table-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: 70vh;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .table-wrapper table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      font-size: 1rem;
+    }
+    .table-wrapper th,
+    .table-wrapper td {
+      padding: 1rem 1.5rem;
+      text-align: left;
+      white-space: nowrap;
+      min-width: 130px;
+      max-width: 400px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .table-wrapper td:nth-child(2) { min-width: 240px; }
+    .table-wrapper th {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      border-bottom: 2px solid var(--border);
+    }
+    .table-wrapper td { border-bottom: 1px solid var(--border); }
+    .table-wrapper tr:hover td { background: rgba(59, 130, 246, 0.06); }
+
+    .personal-info-table .table-wrapper { max-height: 220px; }
+
+    /* Bootstrap overrides for theme */
+    .card { background: var(--bg-card) !important; border-color: var(--border) !important; }
+    .card-body { background: var(--bg-card) !important; color: var(--text-primary) !important; }
+    .card-header { background: var(--bg-secondary) !important; border-color: var(--border) !important; color: var(--text-primary) !important; }
+    .form-control { background: var(--bg-secondary) !important; border-color: var(--border) !important; color: var(--text-primary) !important; }
+    .form-control::placeholder { color: var(--text-secondary); }
+    .form-control:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important; }
+    .btn-outline-secondary { border-color: var(--border) !important; color: var(--text-secondary) !important; }
+    .btn-outline-secondary:hover { background: var(--bg-secondary) !important; border-color: var(--border) !important; color: var(--text-primary) !important; }
+    .btn-check:checked + .btn-outline-secondary { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
+    .text-muted { color: var(--text-secondary) !important; }
+    .app-toast { position: fixed !important; bottom: 1.5rem; right: 1.5rem; z-index: 1100; }
+
+    .nav-tabs { border-color: var(--border) !important; }
+    .nav-tabs .nav-link { color: var(--text-secondary) !important; background: transparent !important; border-color: transparent !important; }
+    .nav-tabs .nav-link:hover { color: var(--text-primary) !important; border-color: var(--border) !important; }
+    .nav-tabs .nav-link.active { color: var(--accent) !important; background: var(--bg-card) !important; border-color: var(--border) var(--border) var(--bg-card) !important; }
+    .tab-content, .tab-pane { color: var(--text-primary) !important; background: transparent !important; }
+    .dropdown-menu { background: var(--bg-card) !important; border-color: var(--border) !important; }
+    .dropdown-item { color: var(--text-primary) !important; }
+    .dropdown-item:hover { background: var(--bg-secondary) !important; }
+    [data-theme="dark"] .btn-close { filter: invert(1); opacity: 0.8; }
+    @media (prefers-color-scheme: dark) { [data-theme="system"] .btn-close { filter: invert(1); opacity: 0.8; } }
+
+    .loading { color: var(--text-secondary); }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      background: var(--success);
+      color: white;
+      border-radius: 8px;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* AI Analysis Section */
+    .ai-analysis-scroll-area {
+      max-height: 480px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0.25rem 0;
+      -webkit-overflow-scrolling: touch;
+    }
+    .ai-analysis-scroll-area::-webkit-scrollbar {
+      width: 8px;
+    }
+    .ai-analysis-scroll-area::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+      border-radius: 4px;
+    }
+    .ai-analysis-scroll-area::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+    .ai-analysis-scroll-area::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+    }
+    .ai-analysis-prose {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--text-primary);
+    }
+    .ai-analysis-prose h2, .ai-analysis-prose h3 {
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 1.15rem;
+    }
+    .ai-analysis-prose h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.35rem; }
+    .ai-analysis-prose p { margin-bottom: 1rem; }
+    .ai-analysis-prose ul, .ai-analysis-prose ol {
+      margin: 0.75rem 0 1rem 1.25rem;
+      padding-left: 0.5rem;
+    }
+    .ai-analysis-prose li { margin-bottom: 0.4rem; }
+    .ai-analysis-prose strong { font-weight: 600; color: var(--accent-muted); }
+    .ai-analysis-prose hr { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+
+    /* Chat with AI */
+    .chat-with-ai { max-height: 420px; display: flex; flex-direction: column; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 1rem; min-height: 200px; max-height: 300px; }
+    .chat-msg { margin-bottom: 1rem; padding: 0.6rem 0.9rem; border-radius: 10px; max-width: 90%; }
+    .chat-msg.user { background: rgba(59, 130, 246, 0.2); margin-left: auto; border-bottom-right-radius: 4px; }
+    .chat-msg.assistant { background: var(--bg-secondary); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .chat-msg .msg-time { font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.25rem; }
+    .chat-msg .msg-body { font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+    .chat-msg.assistant .msg-body { font-family: inherit; }
+    .chat-suggestions { flex-wrap: wrap; gap: 0.4rem; padding: 0.5rem 1rem; border-top: 1px solid var(--border); }
+    .chat-suggestions .btn { font-size: 0.8rem; padding: 0.35rem 0.6rem; }
+    .chat-input-row { padding: 0.75rem 1rem; border-top: 1px solid var(--border); gap: 0.5rem; }
+
+    /* Debug Panel */
+    .debug-panel {
+      margin-top: 2rem;
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .debug-panel .card-body { background: var(--bg-card) !important; color: var(--text-primary) !important; }
+
+    .debug-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary) !important;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .debug-header:hover {
+      background: rgba(59, 130, 246, 0.12) !important;
+    }
+
+    .debug-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary) !important;
+    }
+
+    .debug-toggle {
+      color: var(--accent-muted);
+      font-size: 0.8rem;
+    }
+
+    .debug-content {
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 1.25rem;
+      background: var(--bg-card) !important;
+    }
+
+    .debug-content.collapsed {
+      display: none;
+    }
+
+    .debug-step {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      align-items: flex-start;
+    }
+
+    .debug-step:last-child {
+      border-bottom: none;
+    }
+
+    .debug-step-time {
+      color: var(--accent-muted);
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .debug-step-icon {
+      flex-shrink: 0;
+      width: 22px;
+      text-align: center;
+    }
+
+    .debug-step-msg {
+      flex: 1;
+      word-break: break-word;
+      color: var(--text-primary) !important;
+    }
+
+    .debug-step.success .debug-step-icon { color: var(--success); }
+    .debug-step.error .debug-step-icon { color: var(--error); }
+    .debug-step.pending .debug-step-icon { color: var(--text-secondary); }
+    .debug-step.active .debug-step-icon { color: var(--accent); }
+
+    .debug-step-detail {
+      font-size: 0.8rem;
+      color: var(--text-secondary) !important;
+      margin-top: 0.3rem;
+    }
+
+    /* Two-table layout */
+    .table-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .table-section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .table-section-title.sensitive {
+      color: #f59e0b;
+    }
+
+    .table-section-title.sensitive::before {
+      content: "⚠";
+      font-size: 1.1rem;
+    }
+
+    .personal-info-table {
+      margin-bottom: 2rem;
+    }
+
+    .personal-info-table .table-wrapper {
+      max-height: 200px;
+    }
+    .summary-card { min-height: 100px; }
+    .chart-container { position: relative; height: 280px; }
+    .border-bottom { border-color: var(--border) !important; }
+
+    /* Logs panels row */
+    .logs-panels-row { margin-top: 1.5rem; gap: 1rem; }
+    .logs-panel-card { height: 100%; min-height: 220px; }
+    .logs-panel-card .card-header { padding: 0.5rem 1rem; }
+    .logs-panel-card .card-body { max-height: 320px; overflow-y: auto; }
+    #aiLogsPanel .card-body { font-family: 'SF Mono', Consolas, monospace; font-size: 0.8rem; white-space: pre-wrap; word-break: break-word; }
+    .logs-panel-card .log-section { margin-bottom: 1rem; }
+    .logs-panel-card .log-section-title { font-weight: 600; font-size: 0.75rem; text-transform: uppercase; color: var(--accent-muted); margin-bottom: 0.35rem; }
+  </style>
+</head>
+<body>
+  <div class="container container-lg py-4 py-lg-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+      <header class="text-center text-lg-start flex-grow-1">
+        <h1 class="h3 mb-1 fw-bold">Bank Statement Analyzer</h1>
+        <p class="text-muted small mb-0">Upload PDF • Unlock • Copy to Excel or Google Sheets</p>
+      </header>
+      <div class="btn-group btn-group-sm mt-2 mt-lg-0" role="group" id="themeToggle">
+        <input type="radio" class="btn-check" name="theme" id="themeDark" value="dark" autocomplete="off" checked>
+        <label class="btn btn-outline-secondary" for="themeDark"><i class="bi bi-moon-stars me-1"></i>Dark</label>
+        <input type="radio" class="btn-check" name="theme" id="themeLight" value="light" autocomplete="off">
+        <label class="btn btn-outline-secondary" for="themeLight"><i class="bi bi-sun me-1"></i>Light</label>
+        <input type="radio" class="btn-check" name="theme" id="themeSystem" value="system" autocomplete="off">
+        <label class="btn btn-outline-secondary" for="themeSystem"><i class="bi bi-display me-1"></i>System</label>
+      </div>
+    </div>
+
+    <div class="card border shadow-sm mb-4">
+      <div class="card-body p-4">
+        <div class="upload-zone rounded-3 py-5 px-4" id="uploadZone">
+          <i class="bi bi-file-earmark-pdf display-4 text-primary opacity-75 d-block mb-2"></i>
+          <p class="mb-1">Drag & drop your bank statement PDF here, or <strong>click to browse</strong></p>
+          <p class="file-name small text-primary fw-medium mb-0" id="fileName"></p>
+          <input type="file" id="fileInput" accept=".pdf">
+        </div>
+
+        <div class="password-section mt-4 d-none" id="passwordSection">
+          <div class="d-flex flex-wrap gap-2 align-items-start">
+            <div class="flex-grow-1 d-none" id="passwordInputWrapper" style="min-width: 220px;">
+              <input 
+                type="password" 
+                id="passwordInput" 
+                class="form-control form-control-lg" 
+                placeholder="Enter PDF password"
+                autocomplete="current-password"
+              >
+            </div>
+            <button class="btn btn-primary btn-lg" id="unlockBtn">
+              <i class="bi bi-eye me-2"></i>View
+            </button>
+          </div>
+          <p class="error-msg text-danger small mt-2" id="errorMsg"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="results-section mt-4" id="resultsSection">
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h2 class="h5 mb-0 fw-semibold">Statement Data</h2>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <div class="btn-group btn-group-sm" role="group">
+            <button class="btn btn-success" id="copyBtn" title="Copy transactions for Excel/Sheets"><i class="bi bi-file-earmark-spreadsheet me-1"></i>Copy to Excel</button>
+            <button class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false"><span class="visually-hidden">Copy options</span></button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" id="copyExcelBtn"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Copy as Excel (TSV)</a></li>
+              <li><a class="dropdown-item" href="#" id="copyWordBtn"><i class="bi bi-file-earmark-word me-2"></i>Copy for Word/Document</a></li>
+            </ul>
+          </div>
+          <button class="btn btn-outline-primary btn-sm" id="summaryBtn" disabled><i class="bi bi-graph-up me-1"></i>Summary & Charts</button>
+          <button class="btn btn-outline-info btn-sm" id="analyseWithAIBtn" disabled title="Get AI-powered analysis from Gemini"><i class="bi bi-robot me-1"></i>Analyse with AI</button>
+          <button class="btn btn-outline-info btn-sm" id="chatWithAIBtn" disabled title="Ask questions about your statement"><i class="bi bi-chat-dots me-1"></i>Chat with AI</button>
+          <button class="btn btn-outline-secondary btn-sm" id="downloadUnlockedPdfBtn" disabled title="Save unlocked PDF without password"><i class="bi bi-unlock-fill me-1"></i>Download Unlocked PDF</button>
+          <button class="btn btn-outline-danger btn-sm" id="downloadPdfBtn" disabled title="Download analysis summary as PDF"><i class="bi bi-file-pdf me-1"></i>Download Summary PDF</button>
+        </div>
+      </div>
+
+      <!-- Table 1: Personal Info (sensitive) -->
+      <div class="table-section personal-info-table mb-4 d-none" id="personalInfoSection">
+        <h3 class="h6 fw-semibold mb-2 table-section-title sensitive"><i class="bi bi-shield-exclamation me-2"></i>Account Holder Information (Sensitive)</h3>
+        <div class="table-wrapper">
+          <table id="personalInfoTable">
+            <thead id="personalInfoHead"></thead>
+            <tbody id="personalInfoBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Table 2: Transactions -->
+      <div class="table-section d-none" id="transactionsSection">
+        <h3 class="h6 fw-semibold mb-2"><i class="bi bi-table me-2"></i>Transactions <span class="badge bg-secondary ms-2">Swipe ← → to scroll</span></h3>
+        <div class="table-wrapper">
+        <div class="loading text-center py-5" id="loadingState">
+          <div class="spinner-border text-primary mb-3" role="status"><span class="visually-hidden">Loading...</span></div>
+          <p class="mb-0">Extracting data from PDF...</p>
+        </div>
+          <table id="dataTable" style="display: none;">
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Summary & Analytics -->
+      <div class="card border mt-4 d-none" id="summarySection">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Financial Summary & Analytics</h5>
+            <small class="text-muted" id="summaryDateRange"></small>
+          </div>
+          <button type="button" class="btn-close" id="summaryClose" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <p class="text-muted small mb-3"><strong>Credit</strong> = money in (income, deposits). <strong>Debit</strong> = money out (expenses, withdrawals). Transactions are auto-categorized by narration keywords.</p>
+          <ul class="nav nav-tabs mb-3" id="summaryTabs">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#overviewTab">Overview</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#chartsTab">Charts</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#categoriesTab">Categories</a></li>
+          </ul>
+          <div class="tab-content" id="summaryContent">
+            <div class="tab-pane fade show active" id="overviewTab">
+              <div class="row g-3 mb-4" id="summaryMetrics"></div>
+              <div class="row g-3 mb-4" id="summaryStats"></div>
+              <h6 class="fw-semibold mb-2">Transaction Count</h6>
+              <div class="row g-2 mb-3" id="summaryCounts"></div>
+              <h6 class="fw-semibold mb-2">Category Breakdown</h6>
+              <div id="overviewCategoryBreakdown"></div>
+            </div>
+            <div class="tab-pane fade" id="chartsTab">
+              <div class="row g-4">
+                <div class="col-md-6"><div class="chart-container"><canvas id="incomeExpenseChart"></canvas></div></div>
+                <div class="col-md-6"><div class="chart-container"><canvas id="categoryPieChart"></canvas></div></div>
+                <div class="col-12"><div class="chart-container" style="height: 220px;"><canvas id="monthlyTrendChart"></canvas></div></div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="categoriesTab">
+              <div id="categoryBreakdown"></div>
+            </div>
+        </div>
+      </div>
+
+      <!-- AI Analysis (inline) -->
+      <div class="card border mt-4 d-none" id="aiAnalysisSection">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-robot me-2"></i>AI Analysis</h5>
+          <button type="button" class="btn-close" id="aiAnalysisClose" aria-label="Close"></button>
+        </div>
+        <div class="card-body p-0">
+          <div class="ai-analysis-scroll-area px-4 pb-4">
+            <div id="aiAnalysisLoading" class="text-center py-5">
+              <div class="spinner-border text-info mb-3" role="status"></div>
+              <p class="mb-0 text-muted">Analysing with Gemini AI...</p>
+            </div>
+            <div id="aiAnalysisContent" class="ai-analysis-prose d-none"></div>
+            <div id="aiAnalysisError" class="alert alert-danger d-none"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat with AI -->
+      <div class="card border mt-4 d-none" id="chatWithAISection">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-chat-dots me-2"></i>Chat with AI</h5>
+          <div class="d-flex gap-1 align-items-center">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="chatClearBtn" title="Clear chat"><i class="bi bi-trash me-1"></i>Clear</button>
+            <button type="button" class="btn-close" id="chatCloseBtn" aria-label="Close"></button>
+          </div>
+        </div>
+        <div class="card-body p-0 chat-with-ai">
+          <div class="chat-messages" id="chatMessages">
+            <div class="text-muted small text-center py-4" id="chatPlaceholder">Ask questions about your bank statement. Try the suggestions below or type your own question.</div>
+          </div>
+          <div class="chat-suggestions d-flex" id="chatSuggestions">
+            <button type="button" class="btn btn-sm btn-outline-info" data-question="What is my total spending and income in this period?">Total spending & income</button>
+            <button type="button" class="btn btn-sm btn-outline-info" data-question="Give me a monthly spending breakdown">Monthly spending</button>
+            <button type="button" class="btn btn-sm btn-outline-info" data-question="What is my weekly spending pattern?">Weekly spending</button>
+            <button type="button" class="btn btn-sm btn-outline-info" data-question="Summarise my yearly spending and income">Yearly summary</button>
+            <button type="button" class="btn btn-sm btn-outline-info" data-question="What are my top 5 expense categories?">Top expense categories</button>
+            <button type="button" class="btn btn-sm btn-outline-info" data-question="Where do I spend the most money?">Biggest spending areas</button>
+          </div>
+          <div class="chat-input-row d-flex">
+            <input type="text" class="form-control" id="chatInput" placeholder="Ask about your transactions..." autocomplete="off">
+            <button type="button" class="btn btn-info" id="chatSendBtn"><i class="bi bi-send-fill"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logs Panels Row -->
+    <div class="row logs-panels-row">
+      <div class="col-lg-6">
+        <div class="card border logs-panel-card" id="debugPanel">
+          <div class="card-header d-flex justify-content-between align-items-center" id="debugHeader" style="cursor:pointer">
+            <span class="debug-title"><i class="bi bi-bug me-2"></i>Processing Steps</span>
+            <div class="d-flex gap-1 align-items-center">
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="debugClearBtn" title="Clear logs"><i class="bi bi-trash me-1"></i>Clear</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="debugCopyBtn" title="Copy logs"><i class="bi bi-clipboard me-1"></i>Copy</button>
+              <span class="debug-toggle small" id="debugToggle" style="cursor:pointer"><i class="bi bi-chevron-down"></i></span>
+            </div>
+          </div>
+          <div class="card-body p-3 debug-content" id="debugContent">
+            <div class="debug-steps" id="debugSteps">
+              <div class="debug-step pending">
+                <span class="debug-step-time">--:--:--</span>
+                <span class="debug-step-icon">○</span>
+                <span class="debug-step-msg">Waiting for PDF upload...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card border logs-panel-card" id="aiLogsPanel">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-robot me-2"></i>AI API Logs</span>
+            <div class="d-flex gap-1">
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="aiLogsClearBtn" title="Clear logs"><i class="bi bi-trash me-1"></i>Clear</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="aiLogsCopyBtn" title="Copy logs"><i class="bi bi-clipboard me-1"></i>Copy</button>
+            </div>
+          </div>
+          <div class="card-body p-3" id="aiLogsContent">
+            <div class="text-muted small">Click "Analyse with AI" to see request and response logs.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-toast alert alert-success shadow-lg" id="toast"><i class="bi bi-check-circle me-2"></i>Copied to clipboard!</div>
+
+  <!-- AI Analysis Modals (API key modal hidden when config key is set) -->
+  <div class="modal fade" id="aiApiKeyModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-key me-2"></i>API Key</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small mb-2">Enter your Gemini API key from <a href="https://aistudio.google.com/" target="_blank" rel="noopener">Google AI Studio</a>.</p>
+          <input type="password" class="form-control" id="geminiApiKeyInput" placeholder="Enter API key" autocomplete="off">
+          <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" id="rememberApiKey" checked>
+            <label class="form-check-label" for="rememberApiKey">Remember for this session</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-info" id="saveApiKeyAndAnalyse"><i class="bi bi-robot me-1"></i>Save & Analyse</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="api-config.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script type="module">
+    import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs';
+    import { GoogleGenAI } from 'https://esm.sh/@google/genai@1';
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs';
+
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const passwordSection = document.getElementById('passwordSection');
+    const passwordInputWrapper = document.getElementById('passwordInputWrapper');
+    const passwordInput = document.getElementById('passwordInput');
+    const unlockBtn = document.getElementById('unlockBtn');
+    const errorMsg = document.getElementById('errorMsg');
+    const resultsSection = document.getElementById('resultsSection');
+    const loadingState = document.getElementById('loadingState');
+    const dataTable = document.getElementById('dataTable');
+    const tableHead = document.getElementById('tableHead');
+    const tableBody = document.getElementById('tableBody');
+    const copyBtn = document.getElementById('copyBtn');
+    const toast = document.getElementById('toast');
+    const debugPanel = document.getElementById('debugPanel');
+    const debugHeader = document.getElementById('debugHeader');
+    const debugContent = document.getElementById('debugContent');
+    const debugSteps = document.getElementById('debugSteps');
+    const debugToggle = document.getElementById('debugToggle');
+    const personalInfoSection = document.getElementById('personalInfoSection');
+    const personalInfoHead = document.getElementById('personalInfoHead');
+    const personalInfoBody = document.getElementById('personalInfoBody');
+    const transactionsSection = document.getElementById('transactionsSection');
+    const summarySection = document.getElementById('summarySection');
+    const summaryBtn = document.getElementById('summaryBtn');
+    const summaryClose = document.getElementById('summaryClose');
+    const analyseWithAIBtn = document.getElementById('analyseWithAIBtn');
+    const chatWithAIBtn = document.getElementById('chatWithAIBtn');
+    const chatWithAISection = document.getElementById('chatWithAISection');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatPlaceholder = document.getElementById('chatPlaceholder');
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+    const chatCloseBtn = document.getElementById('chatCloseBtn');
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    const downloadUnlockedPdfBtn = document.getElementById('downloadUnlockedPdfBtn');
+    const copyExcelBtn = document.getElementById('copyExcelBtn');
+    const copyWordBtn = document.getElementById('copyWordBtn');
+    const htmlEl = document.documentElement;
+
+    let currentPdfFile = null;
+    let currentPdfDoc = null;
+    let analysisData = null;
+    let chartInstances = {};
+
+    // Theme toggle
+    const savedTheme = localStorage.getItem('app-theme') || 'dark';
+    htmlEl.setAttribute('data-theme', savedTheme);
+    const themeMap = { dark: 'themeDark', light: 'themeLight', system: 'themeSystem' };
+    const themeRadio = document.getElementById(themeMap[savedTheme]);
+    if (themeRadio) { themeRadio.checked = true; }
+
+    document.querySelectorAll('#themeToggle input[name="theme"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        htmlEl.setAttribute('data-theme', e.target.value);
+        localStorage.setItem('app-theme', e.target.value);
+      });
+    });
+    let extractedData = [];
+    let personalInfoData = [];
+    let transactionData = [];
+
+    function debugLog(msg, status = 'success', detail = '') {
+      const now = new Date();
+      const time = now.toTimeString().slice(0, 8) + '.' + String(now.getMilliseconds()).padStart(3, '0');
+      const step = document.createElement('div');
+      step.className = `debug-step ${status}`;
+      step.innerHTML = `
+        <span class="debug-step-time">${time}</span>
+        <span class="debug-step-icon">${status === 'error' ? '✕' : status === 'active' ? '▶' : status === 'pending' ? '○' : '✓'}</span>
+        <span class="debug-step-msg">${escapeHtml(msg)}${detail ? `<div class="debug-step-detail">${escapeHtml(detail)}</div>` : ''}</span>
+      `;
+      debugSteps.appendChild(step);
+      debugContent.scrollTop = debugContent.scrollHeight;
+    }
+
+    function debugClear() {
+      debugSteps.innerHTML = '';
+    }
+
+    function getDebugLogsText() {
+      return Array.from(debugSteps.querySelectorAll('.debug-step')).map(s => {
+        const time = s.querySelector('.debug-step-time')?.textContent || '';
+        const icon = s.querySelector('.debug-step-icon')?.textContent || '';
+        const msg = s.querySelector('.debug-step-msg')?.textContent?.replace(/\s+/g, ' ').trim() || '';
+        const detail = s.querySelector('.debug-step-detail')?.textContent?.trim();
+        return `[${time}] ${icon} ${msg}${detail ? '\n  ' + detail : ''}`;
+      }).join('\n');
+    }
+
+    document.getElementById('debugClearBtn')?.addEventListener('click', (e) => { e.stopPropagation(); debugClear(); });
+    document.getElementById('debugCopyBtn')?.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const text = getDebugLogsText();
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        toast.classList.add('visible');
+        toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Logs copied!';
+        setTimeout(() => { toast.classList.remove('visible'); toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied to clipboard!'; }, 1500);
+      } catch (_) {}
+    });
+
+    debugHeader.addEventListener('click', () => {
+      debugContent.classList.toggle('collapsed');
+      const icon = debugToggle.querySelector('i');
+      if (icon) icon.className = debugContent.classList.contains('collapsed') ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
+    });
+
+    uploadZone.addEventListener('click', () => fileInput.click());
+
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('dragover');
+    });
+
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('dragover');
+    });
+
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type === 'application/pdf') handleFile(file);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) handleFile(file);
+    });
+
+    let pdfIsSecured = false;
+
+    async function handleFile(file) {
+      debugClear();
+      debugLog('PDF file selected', 'success', `${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+      currentPdfFile = file;
+      fileName.textContent = file.name;
+      uploadZone.classList.add('uploaded');
+      passwordSection.classList.remove('d-none');
+      passwordSection.classList.add('visible');
+      errorMsg.textContent = '';
+      passwordInput.value = '';
+      passwordInputWrapper.classList.add('d-none');
+      unlockBtn.disabled = true;
+      unlockBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Checking PDF...';
+      resultsSection.classList.remove('visible');
+      extractedData = [];
+      personalInfoData = [];
+      transactionData = [];
+      currentPdfDoc = null;
+
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const data = arrayBuffer.byteLength ? new Uint8Array(arrayBuffer) : arrayBuffer;
+        const pdf = await pdfjsLib.getDocument({ data }).promise;
+        pdfIsSecured = false;
+        currentPdfDoc = pdf;
+        passwordInputWrapper.classList.add('d-none');
+        unlockBtn.innerHTML = '<i class="bi bi-eye me-2"></i>View';
+        unlockBtn.disabled = false;
+        debugLog('PDF is unlocked', 'success');
+      } catch (err) {
+        const errMsg = String(err?.message || err);
+        if (/password|encrypted|needs?\s*password|request.?password/i.test(errMsg)) {
+          pdfIsSecured = true;
+          passwordInputWrapper.classList.remove('d-none');
+          unlockBtn.innerHTML = '<i class="bi bi-unlock me-2"></i>Unlock & View';
+          unlockBtn.disabled = true;
+          passwordInput.focus();
+          debugLog('PDF is password-protected', 'pending', 'Enter password to unlock');
+        } else {
+          errorMsg.textContent = 'Failed to read PDF. ' + (err?.message || errMsg);
+          unlockBtn.innerHTML = '<i class="bi bi-eye me-2"></i>View';
+          unlockBtn.disabled = false;
+        }
+      }
+    }
+
+    async function unlockAndExtract() {
+      if (!currentPdfFile) return;
+      
+      errorMsg.textContent = '';
+      unlockBtn.disabled = true;
+      summaryBtn.disabled = true;
+      analyseWithAIBtn.disabled = true;
+      chatWithAIBtn.disabled = true;
+      downloadPdfBtn.disabled = true;
+      downloadUnlockedPdfBtn.disabled = true;
+      resultsSection.classList.add('visible');
+      document.getElementById('aiAnalysisSection')?.classList.add('d-none');
+      document.getElementById('chatWithAISection')?.classList.add('d-none');
+      loadingState.style.display = 'block';
+      loadingState.innerHTML = '<div class="spinner-border text-primary mb-3" role="status"><span class="visually-hidden">Loading...</span></div><p class="mb-0">Extracting data from PDF...</p>';
+      dataTable.style.display = 'none';
+      personalInfoSection.classList.add('d-none');
+      transactionsSection.classList.remove('d-none');
+
+      const password = passwordInput.value.trim();
+      const isProtected = pdfIsSecured && !!password;
+      debugLog('Extract initiated', 'active', isProtected ? 'Password provided for protected PDF' : 'Using unlocked PDF');
+
+      try {
+        let pdf = currentPdfDoc;
+        if (!pdf || isProtected) {
+          debugLog('Reading PDF file into memory...', 'active');
+          const arrayBuffer = await currentPdfFile.arrayBuffer();
+          debugLog('File read complete', 'success', `${(arrayBuffer.byteLength / 1024).toFixed(1)} KB`);
+
+          if (isProtected) {
+            debugLog('Loading password-protected PDF...', 'active');
+            const loadingTask = pdfjsLib.getDocument({
+              data: new Uint8Array(arrayBuffer),
+              password: password,
+              verbosity: 0
+            });
+            loadingTask.onPassword = (updatePassword) => {
+              const pwd = passwordInput.value.trim();
+              updatePassword(pwd || '');
+            };
+            pdf = await loadingTask.promise;
+          } else {
+            debugLog('Loading PDF...', 'active');
+            const data = arrayBuffer.byteLength ? new Uint8Array(arrayBuffer) : arrayBuffer;
+            pdf = await pdfjsLib.getDocument({ data }).promise;
+          }
+          currentPdfDoc = pdf;
+        } else {
+          debugLog('Using cached unlocked PDF', 'success');
+        }
+        debugLog('PDF unlocked successfully', 'success', `${pdf.numPages} page(s) found`);
+
+        debugLog('Extracting text and tables from all pages...', 'active');
+        const { personalInfo, transactions } = await extractTables(pdf);
+
+        personalInfoData = personalInfo;
+        transactionData = transactions;
+
+        downloadUnlockedPdfBtn.disabled = false;
+
+        if (personalInfo.length > 0) {
+          debugLog('Table 1 identified: Account holder info (sensitive)', 'success', `${personalInfo.length} row(s)`);
+          renderPersonalInfoTable(personalInfo);
+          personalInfoSection.classList.remove('d-none');
+        } else {
+          debugLog('Table 1: No personal info block detected', 'pending');
+        }
+
+        if (transactions.length > 0) {
+          debugLog('Table 2 identified: Transaction list', 'success', `${transactions.length} row(s)`);
+          renderTable(transactions);
+          extractedData = transactionData;
+          analysisData = analyzeTransactions(transactionData);
+          summarySection.classList.remove('d-none');
+          summaryBtn.disabled = false;
+          analyseWithAIBtn.disabled = false;
+          chatWithAIBtn.disabled = false;
+          downloadPdfBtn.disabled = false;
+          renderSummary();
+          summarySection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          loadingState.style.display = 'none';
+          dataTable.style.display = 'table';
+        } else {
+          summarySection.classList.add('d-none');
+          summaryBtn.disabled = true;
+          analyseWithAIBtn.disabled = true;
+          chatWithAIBtn.disabled = true;
+          downloadPdfBtn.disabled = true;
+          extractedData = [];
+          debugLog('Table 2: No transaction data found', 'error');
+          loadingState.style.display = 'none';
+          loadingState.innerHTML = '<p>No transactions detected in this statement.</p>';
+        }
+
+        if (personalInfo.length === 0 && transactions.length === 0) {
+          errorMsg.textContent = 'No table data found in the PDF. The format may not be supported.';
+          loadingState.innerHTML = '<p>No table data could be extracted from this PDF.</p>';
+          loadingState.style.display = 'block';
+          debugLog('Extraction failed: No tables detected', 'error');
+        } else {
+          debugLog('All processing complete', 'success');
+        }
+      } catch (err) {
+        let message = 'Failed to open PDF. ';
+        if (err?.message === 'PASSWORD_REQUIRED') {
+          message = 'This PDF is password-protected. Enter the password above and click Unlock & View.';
+          passwordInput.focus();
+          debugLog('PDF is password-protected', 'error', 'Password required');
+        } else if (err?.message && /password|wrong|incorrect/i.test(err.message)) {
+          message = 'Incorrect password. Please check and try again.';
+          passwordInput.focus();
+          debugLog('Wrong password', 'error', err.message);
+        } else {
+          message += (err?.message || String(err)) || 'Unknown error.';
+          debugLog('Error: ' + message, 'error', err?.message || err?.toString?.() || '');
+        }
+        errorMsg.textContent = message;
+        loadingState.innerHTML = `<p class="error-msg">${message}</p>`;
+        loadingState.style.display = 'block';
+        dataTable.style.display = 'none';
+      } finally {
+        unlockBtn.disabled = false;
+      }
+    }
+
+    unlockBtn.addEventListener('click', unlockAndExtract);
+
+    function updateUnlockButtonLabel() {
+      if (!pdfIsSecured) return;
+      unlockBtn.disabled = !passwordInput.value.trim();
+    }
+
+    passwordInput.addEventListener('input', updateUnlockButtonLabel);
+    passwordInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') unlockAndExtract();
+    });
+
+    const PERSONAL_INFO_LABELS = /account|name|holder|customer|address|branch|ifsc|pan|aadhaar|email|phone|statement period|from|to/i;
+    const TRANSACTION_HEADER_LABELS = /date|particulars|narration|description|debit|credit|balance|transaction|ref|value|amount|withdrawal|deposit|dr|cr|chq|cheque/i;
+
+    const HEADER_FOOTER_PATTERNS = [
+      /corporate\s*office|market\s*road|periyar\s*nagar|aluva\s*,?\s*kerala\s*\d{6}/i,
+      /^(phone\s*number|website)\s*:?\s*$/i,
+      /^www\.\S+\.(co\.in|com|org|net)\s*$/i,
+      /24\s*[\*x×]\s*7|phone\s*banking|toll\s*free\s*\d+/i,
+      /\b(federal|hdfc|icici|sbi|axis|kotak|jupiter|yes\s*bank)\s+(bank|ltd|limited)\s+corporate\s+office/i,
+      /federal\s*towers|1800\s*\d{3}\s*\d{4}\s*$/i,
+      /^\s*\d{4,5}\s+\d{6,7}\s*$/,
+      /^\s*[\d\s]+\s*$/
+    ];
+
+    function isHeaderOrFooterRow(cells) {
+      const text = cells.join(' ').trim();
+      if (!text || text.length < 5) return false;
+      if (HEADER_FOOTER_PATTERNS.some(p => p.test(text))) return true;
+      if (/^\d{4}\s+\d{4}\s*$/.test(text.replace(/\s/g, ''))) return true;
+      return false;
+    }
+
+    function looksLikeTransactionHeader(cells) {
+      const text = cells.join(' ').toLowerCase();
+      return TRANSACTION_HEADER_LABELS.test(text) && cells.some(c => c.length < 30);
+    }
+
+    const DATE_PATTERNS = /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|\d{2}[\/\-][A-Za-z]{3}[\/\-]\d{2,4}|[A-Za-z]{3}\s+\d{1,2}\s*,?\s*\d{4}|\d{1,2}[\/\-][A-Za-z]{3}[\/\-]\d{2,4}|\d{2}\-[A-Za-z]{3}\-\d{2,4}/i;
+    const AMOUNT_PATTERNS = /^[\d,]+\.?\d{0,2}\s*$|^(inr|rs\.?)\s*[\d,]+\.?\d*$/i;
+    function looksLikeTransactionRow(cells) {
+      const hasDate = cells.some(c => DATE_PATTERNS.test(String(c)));
+      const hasAmount = cells.some(c => AMOUNT_PATTERNS.test(String(c).replace(/\s/g, ' ')));
+      const hasNumeric = cells.some(c => /^[\d,]+\.?\d*$/.test(String(c).replace(/\s/g, '')));
+      return hasDate || hasAmount || (hasNumeric && cells.length >= 2);
+    }
+
+    function looksLikePersonalInfoRow(cells) {
+      const text = cells.join(' ').toLowerCase();
+      return PERSONAL_INFO_LABELS.test(text) || (cells.length <= 3 && cells.some(c => c.length > 2 && c.length < 60));
+    }
+
+    async function extractTables(pdf) {
+      const allPageRows = [];
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        debugLog(`Processing page ${i} of ${pdf.numPages}...`, 'active');
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const items = textContent.items;
+
+        const itemsWithPos = items.map(item => ({
+          str: item.str,
+          x: item.transform[4],
+          y: item.transform[5],
+          width: item.width,
+          height: item.height
+        }));
+
+        const sortedByY = [...itemsWithPos].sort((a, b) => b.y - a.y);
+        const rows = groupIntoRows(sortedByY);
+
+        for (const row of rows) {
+          const cells = row.sort((a, b) => a.x - b.x).map(c => c.str).filter(Boolean);
+          if (cells.length === 0) continue;
+          if (isHeaderOrFooterRow(cells)) continue;
+          allPageRows.push({ pageNum: i, cells, y: row[0]?.y ?? 0 });
+        }
+      }
+
+      let personalInfo = [];
+      let transactions = [];
+      let foundTransactionHeader = false;
+      let splitIndex = -1;
+
+      for (let idx = 0; idx < allPageRows.length; idx++) {
+        const { cells } = allPageRows[idx];
+        if (looksLikeTransactionHeader(cells)) {
+          foundTransactionHeader = true;
+          splitIndex = idx;
+          break;
+        }
+      }
+
+      if (foundTransactionHeader && splitIndex >= 0) {
+        personalInfo = allPageRows.slice(0, splitIndex).map(r => r.cells).filter(r => r.length >= 1);
+        const txRows = allPageRows.slice(splitIndex).map(r => r.cells);
+        transactions = txRows.length > 0 ? txRows : [];
+      } else {
+        const txStart = allPageRows.findIndex(r => looksLikeTransactionRow(r.cells));
+        if (txStart >= 0) {
+          personalInfo = allPageRows.slice(0, txStart).map(r => r.cells).filter(r => r.length >= 1);
+          transactions = allPageRows.slice(txStart).map(r => r.cells);
+        } else {
+          if (allPageRows.some(r => looksLikePersonalInfoRow(r.cells))) {
+            const lastPersonalIdx = allPageRows.reduce((last, r, i) => looksLikePersonalInfoRow(r.cells) ? i : last, 0);
+            personalInfo = allPageRows.slice(0, lastPersonalIdx + 1).map(r => r.cells);
+            transactions = allPageRows.slice(lastPersonalIdx + 1).map(r => r.cells);
+          } else {
+            transactions = allPageRows.map(r => r.cells);
+          }
+        }
+      }
+
+      if (personalInfo.length > 0 && !personalInfo[0].some(c => c.length > 3)) {
+        const hasHeader = personalInfo[0].every(c => c.length < 30);
+        if (!hasHeader) personalInfo = personalInfo;
+      }
+
+      let pi = personalInfo.filter(r => r.some(c => String(c).trim()) && !isHeaderOrFooterRow(r));
+      let tx = transactions.filter(r => r.some(c => String(c).trim()) && !isHeaderOrFooterRow(r));
+
+      if (tx.length === 0 && allPageRows.length > 2) {
+        debugLog('Fallback: using all extracted rows as transactions', 'pending');
+        const txStart = allPageRows.findIndex(r => looksLikeTransactionHeader(r.cells) || looksLikeTransactionRow(r.cells));
+        const start = txStart >= 0 ? txStart : 0;
+        pi = allPageRows.slice(0, Math.max(0, start - 1)).map(r => r.cells).filter(r => r.some(c => String(c).trim()));
+        tx = allPageRows.slice(start).map(r => r.cells).filter(r => r.some(c => String(c).trim()));
+      }
+
+      debugLog('Table split complete', 'success', `Personal info: ${pi.length} rows, Transactions: ${tx.length} rows (header/footer trimmed)`);
+
+      return { personalInfo: pi, transactions: tx };
+    }
+
+    function groupIntoRows(items, rowThreshold = 6) {
+      if (items.length === 0) return [];
+      const avgHeight = items.reduce((s, i) => s + (i.height || 5), 0) / items.length;
+      const threshold = Math.max(rowThreshold, avgHeight * 0.5);
+      const rows = [];
+      let currentRow = [];
+      let lastY = null;
+
+      for (const item of items) {
+        if (lastY !== null && Math.abs(item.y - lastY) > threshold) {
+          if (currentRow.length > 0) rows.push(currentRow);
+          currentRow = [];
+        }
+        currentRow.push(item);
+        lastY = item.y;
+      }
+      if (currentRow.length > 0) rows.push(currentRow);
+      return rows;
+    }
+
+    function renderPersonalInfoTable(data) {
+      if (!data || data.length === 0) return;
+      const maxCols = Math.max(...data.map(r => r.length), 2);
+      const headers = data[0] && data[0].length >= 1
+        ? data[0].map((h, i) => h || `Field ${i + 1}`)
+        : Array.from({ length: maxCols }, (_, i) => `Field ${i + 1}`);
+      const rows = data[0] && data[0].every(c => String(c).length < 40 && !/^\d{1,2}[\/\-]\d/.test(String(c)))
+        ? data.slice(1)
+        : data;
+      personalInfoHead.innerHTML = `<tr>${headers.map(h => `<th>${escapeHtml(String(h))}</th>`).join('')}</tr>`;
+      personalInfoBody.innerHTML = (rows.length ? rows : data).map(row => {
+        const cells = [...row];
+        while (cells.length < headers.length) cells.push('');
+        return `<tr>${cells.map(c => `<td>${escapeHtml(String(c))}</td>`).join('')}</tr>`;
+      }).join('');
+    }
+
+    function renderTable(data) {
+      if (!data || data.length === 0) return;
+
+      const isArrayOfArrays = Array.isArray(data[0]);
+      let rows = data;
+      let headers = [];
+
+      if (isArrayOfArrays) {
+        const maxCols = Math.max(...data.map(r => r.length));
+        headers = data[0] && data[0].length >= 2 
+          ? data[0].map((h, i) => h || `Column ${i + 1}`) 
+          : Array.from({ length: maxCols }, (_, i) => `Column ${i + 1}`);
+        rows = data[0] && data[0].some(h => typeof h === 'string' && h.length < 30 && !/^\d{1,2}[\/\-]/.test(String(h)))
+          ? data.slice(1)
+          : data;
+      }
+
+      if (headers.length === 0 && rows[0]) {
+        headers = rows[0].map((_, i) => `Column ${i + 1}`);
+      }
+
+      tableHead.innerHTML = `<tr>${headers.map(h => `<th>${escapeHtml(String(h))}</th>`).join('')}</tr>`;
+      tableBody.innerHTML = rows.map(row => {
+        const cells = [...row];
+        while (cells.length < headers.length) cells.push('');
+        return `<tr>${cells.map(c => `<td>${escapeHtml(String(c))}</td>`).join('')}</tr>`;
+      }).join('');
+
+      transactionData = [headers, ...rows.map(r => [...r])];
+      extractedData = transactionData;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function parseAmount(str) {
+      if (!str || typeof str !== 'string') return 0;
+      const cleaned = String(str).replace(/,/g, '').replace(/\s/g, '');
+      const num = parseFloat(cleaned);
+      return isNaN(num) ? 0 : num;
+    }
+
+    function detectColumnIndices(headers) {
+      const h = headers.map(x => String(x).toLowerCase());
+      let dateIdx = h.findIndex(x => /date|value\s*date|trans\s*date|value/i.test(x));
+      let debitIdx = h.findIndex(x => /debit|withdrawal|withdrawl|dr\.?|chq\/?dr|out|pay/i.test(x));
+      let creditIdx = h.findIndex(x => /credit|deposit|cr\.?|chq\/?cr|in|rec/i.test(x));
+      let narrationIdx = h.findIndex(x => /particulars|narration|description|remarks|details|transaction/i.test(x));
+      if (dateIdx < 0) dateIdx = 0;
+      if (narrationIdx < 0) narrationIdx = Math.max(1, debitIdx >= 0 ? debitIdx - 1 : creditIdx >= 0 ? creditIdx - 1 : 1);
+      if (debitIdx < 0 && creditIdx < 0) {
+        const numCols = headers.length;
+        if (numCols >= 5) { debitIdx = numCols - 3; creditIdx = numCols - 2; }
+        else if (numCols >= 4) { debitIdx = 2; creditIdx = 3; }
+        else if (numCols >= 3) { debitIdx = 1; creditIdx = 2; }
+      }
+      return { dateIdx, debitIdx, creditIdx, narrationIdx };
+    }
+
+    const CATEGORY_RULES = [
+      { keywords: /salary|payroll|income|neft in|imps in|transfer in|refund|interest|cashback|reversal|credit/i, category: 'Income', type: 'income' },
+      { keywords: /sip|mutual fund|mf|stock|demat|nse|bse|invest|fd|recurring|ppf|lic/i, category: 'Investment', type: 'investment' },
+      { keywords: /rent|house|accommodation/i, category: 'Rent & Housing', type: 'expense' },
+      { keywords: /grocery|supermarket|bigbasket|swiggy|zomato|food|restaurant|cafe/i, category: 'Food & Dining', type: 'expense' },
+      { keywords: /electricity|gas|water|utility|broadband|wifi|mobile|recharge/i, category: 'Utilities', type: 'expense' },
+      { keywords: /fuel|petrol|diesel|uber|ola|rapido|transport/i, category: 'Transport', type: 'expense' },
+      { keywords: /amazon|flipkart|mysntra|shopping|retail/i, category: 'Shopping', type: 'expense' },
+      { keywords: /upi|paytm|gpay|phonepe|bharpay|transfer out|neft out|imps/i, category: 'Transfers & UPI', type: 'expense' },
+      { keywords: /subscription|netflix|spotify|prime|ott/i, category: 'Subscriptions', type: 'expense' },
+      { keywords: /insurance|premium/i, category: 'Insurance', type: 'expense' },
+      { keywords: /emi|loan|repayment/i, category: 'Loan & EMI', type: 'expense' },
+      { keywords: /medical|pharmacy|hospital|doctor/i, category: 'Healthcare', type: 'expense' },
+    ];
+
+    function categorizeNarration(narration) {
+      const n = String(narration || '').toLowerCase();
+      for (const r of CATEGORY_RULES) {
+        if (r.keywords.test(n)) return { category: r.category, type: r.type };
+      }
+      return { category: 'Other', type: 'expense' };
+    }
+
+    const MONTH_NAMES = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+
+    function parseDateFromCell(cell) {
+      const s = String(cell || '').trim();
+      const m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+      if (m) return new Date(parseInt(m[3]) < 100 ? 2000 + parseInt(m[3]) : parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]));
+      const m2 = s.match(/(\d{1,2})[\/\-]([A-Za-z]{3})[\/\-](\d{2,4})/i);
+      if (m2) {
+        const mi = MONTH_NAMES.indexOf(m2[2].toLowerCase());
+        if (mi >= 0) return new Date(parseInt(m2[3]) < 100 ? 2000 + parseInt(m2[3]) : parseInt(m2[3]), mi, parseInt(m2[1]));
+      }
+      const m3 = s.match(/([A-Za-z]{3})[\/\-]?(\d{1,2})[\/\-]?(\d{2,4})/i);
+      if (m3) {
+        const mi = MONTH_NAMES.indexOf(m3[1].toLowerCase());
+        if (mi >= 0) return new Date(parseInt(m3[3]) < 100 ? 2000 + parseInt(m3[3]) : parseInt(m3[3]), mi, parseInt(m3[2]) || 1);
+      }
+      return null;
+    }
+
+    function getMonthKey(cell) {
+      const d = parseDateFromCell(cell);
+      if (d) return d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
+      return 'Unknown';
+    }
+
+    function getWeekKey(cell) {
+      const d = parseDateFromCell(cell);
+      if (!d) return 'Unknown';
+      const start = new Date(d); start.setDate(d.getDate() - d.getDay());
+      return start.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: '2-digit' }) + ' wk';
+    }
+
+    function analyzeTransactions(transactionData) {
+      if (!transactionData || transactionData.length < 2) return null;
+      const headers = transactionData[0];
+      const rows = transactionData.slice(1);
+      const { dateIdx, debitIdx, creditIdx, narrationIdx } = detectColumnIndices(headers);
+
+      const byCategory = {};
+      const monthlyIncome = {};
+      const monthlyExpense = {};
+      const weeklyIncome = {};
+      const weeklyExpense = {};
+      let totalIncome = 0, totalExpense = 0;
+      const parsed = [];
+
+      for (const row of rows) {
+        const debit = debitIdx >= 0 ? parseAmount(row[debitIdx]) : 0;
+        const credit = creditIdx >= 0 ? parseAmount(row[creditIdx]) : 0;
+        const narration = narrationIdx >= 0 ? String(row[narrationIdx] || '') : '';
+        const date = dateIdx >= 0 ? row[dateIdx] : '';
+        let amount = 0, type = '';
+        if (credit > 0 && debit <= 0) { amount = credit; type = 'income'; totalIncome += credit; }
+        else if (debit > 0 && credit <= 0) { amount = debit; type = 'expense'; totalExpense += debit; }
+        else if (credit > 0 && debit > 0) { amount = credit - debit; type = amount >= 0 ? 'income' : 'expense'; if (amount >= 0) totalIncome += amount; else totalExpense += Math.abs(amount); }
+        const { category } = categorizeNarration(narration);
+        const month = getMonthKey(date);
+        const week = getWeekKey(date);
+
+        if (!byCategory[category]) byCategory[category] = { income: 0, expense: 0, count: 0 };
+        if (type === 'income') byCategory[category].income += amount;
+        else byCategory[category].expense += amount;
+        byCategory[category].count += 1;
+
+        if (month !== 'Unknown') {
+          if (type === 'income') { monthlyIncome[month] = (monthlyIncome[month] || 0) + amount; }
+          else { monthlyExpense[month] = (monthlyExpense[month] || 0) + amount; }
+        }
+        if (week !== 'Unknown') {
+          if (type === 'income') { weeklyIncome[week] = (weeklyIncome[week] || 0) + amount; }
+          else { weeklyExpense[week] = (weeklyExpense[week] || 0) + amount; }
+        }
+
+        parsed.push({ date, narration, debit, credit, amount, type, category, month, week });
+      }
+
+      const numMonths = Object.keys(monthlyIncome).length + Object.keys(monthlyExpense).length > 0
+        ? new Set([...Object.keys(monthlyIncome), ...Object.keys(monthlyExpense)]).size : 1;
+      const numWeeks = Object.keys(weeklyIncome).length + Object.keys(weeklyExpense).length > 0
+        ? new Set([...Object.keys(weeklyIncome), ...Object.keys(weeklyExpense)]).size : 1;
+
+      return {
+        totalIncome,
+        totalExpense,
+        netFlow: totalIncome - totalExpense,
+        byCategory,
+        monthlyIncome,
+        monthlyExpense,
+        weeklyIncome,
+        weeklyExpense,
+        parsed,
+        numMonths,
+        numWeeks,
+        counts: { income: parsed.filter(p => p.type === 'income').length, expense: parsed.filter(p => p.type === 'expense').length }
+      };
+    }
+
+    function renderSummary() {
+      if (!analysisData) return;
+      const d = analysisData;
+
+      const dates = d.parsed.map(p => p.date).filter(Boolean);
+      const dateRangeEl = document.getElementById('summaryDateRange');
+      if (dateRangeEl && dates.length > 0) dateRangeEl.textContent = `Period: ${dates[0]} – ${dates[dates.length - 1]}`;
+
+      document.getElementById('summaryMetrics').innerHTML = `
+        <div class="col-6 col-md-3">
+          <div class="card summary-card border-success bg-success bg-opacity-10">
+            <div class="card-body py-3">
+              <small class="text-muted">Total Income</small>
+              <div class="h4 text-success mb-0">₹${d.totalIncome.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card summary-card border-danger bg-danger bg-opacity-10">
+            <div class="card-body py-3">
+              <small class="text-muted">Total Expenses</small>
+              <div class="h4 text-danger mb-0">₹${d.totalExpense.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card summary-card border-primary bg-primary bg-opacity-10">
+            <div class="card-body py-3">
+              <small class="text-muted">Net Flow</small>
+              <div class="h4 mb-0 ${d.netFlow >= 0 ? 'text-success' : 'text-danger'}">₹${d.netFlow.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card summary-card">
+            <div class="card-body py-3">
+              <small class="text-muted">Transactions</small>
+              <div class="h4 mb-0">${d.parsed.length}</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const n = d.numMonths || 1;
+      const avgMonthlyIncome = d.totalIncome / n;
+      const avgMonthlyExpense = d.totalExpense / n;
+      const nw = d.numWeeks || 1;
+      const avgWeeklyIncome = d.totalIncome / nw;
+      const avgWeeklyExpense = d.totalExpense / nw;
+      const yearlyIncomeProj = avgMonthlyIncome * 12;
+      const yearlyExpenseProj = avgMonthlyExpense * 12;
+
+      document.getElementById('summaryStats').innerHTML = `
+        <div class="col-12"><h6 class="fw-semibold mb-2"><i class="bi bi-calculator me-2"></i>Sum, Average & Projections</h6></div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card summary-card border-opacity-50">
+            <div class="card-body py-2">
+              <small class="text-muted">Avg/Month</small>
+              <div class="small mb-0"><span class="text-success">₹${avgMonthlyIncome.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span> in · <span class="text-danger">₹${avgMonthlyExpense.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span> out</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card summary-card border-opacity-50">
+            <div class="card-body py-2">
+              <small class="text-muted">Avg/Week</small>
+              <div class="small mb-0"><span class="text-success">₹${avgWeeklyIncome.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span> · <span class="text-danger">₹${avgWeeklyExpense.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card summary-card border-opacity-50">
+            <div class="card-body py-2">
+              <small class="text-muted">Yearly (projected)</small>
+              <div class="small mb-0"><span class="text-success">₹${yearlyIncomeProj.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span> · <span class="text-danger">₹${yearlyExpenseProj.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card summary-card border-opacity-50">
+            <div class="card-body py-2">
+              <small class="text-muted">Avg per TX (Income)</small>
+              <div class="small text-success mb-0">₹${d.counts.income > 0 ? (d.totalIncome / d.counts.income).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card summary-card border-opacity-50">
+            <div class="card-body py-2">
+              <small class="text-muted">Avg per TX (Expense)</small>
+              <div class="small text-danger mb-0">₹${d.counts.expense > 0 ? (d.totalExpense / d.counts.expense).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('summaryCounts').innerHTML = `
+        <div class="col-6"><span class="badge bg-success">${d.counts.income} Credit</span></div>
+        <div class="col-6"><span class="badge bg-danger">${d.counts.expense} Debit</span></div>
+      `;
+
+      const catEntries = Object.entries(d.byCategory).filter(([_, v]) => v.income + v.expense !== 0).sort((a, b) => (b[1].income + b[1].expense) - (a[1].income + a[1].expense));
+      const catHtml = catEntries.map(([name, v]) => {
+        const tot = v.income + v.expense;
+        const pct = d.totalIncome + d.totalExpense > 0 ? (tot / (d.totalIncome + d.totalExpense) * 100).toFixed(1) : 0;
+        const badgeClass = v.income > v.expense ? 'bg-success' : name === 'Investment' ? 'bg-primary' : 'bg-danger';
+        return `
+          <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <span class="category-badge badge ${badgeClass} me-2">${name}</span>
+            <span>₹${tot.toLocaleString('en-IN')} (${pct}%)</span>
+          </div>
+        `;
+      }).join('') || '<p class="text-muted">No categorized data</p>';
+
+      const catEl = document.getElementById('categoryBreakdown');
+      if (catEl) catEl.innerHTML = catHtml;
+      const overviewCat = document.getElementById('overviewCategoryBreakdown');
+      if (overviewCat) overviewCat.innerHTML = catHtml;
+
+      updateCharts();
+    }
+
+    function getChartColors() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || (document.documentElement.getAttribute('data-theme') === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      return {
+        bg: isDark ? 'rgba(30, 42, 58, 0.8)' : 'rgba(255,255,255,0.9)',
+        grid: isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(0,0,0,0.1)',
+        text: isDark ? '#94a3b8' : '#64748b'
+      };
+    }
+
+    function updateCharts() {
+      if (!analysisData) return;
+      const d = analysisData;
+      const colors = getChartColors();
+
+      Object.values(chartInstances).forEach(c => { if (c) c.destroy(); });
+      chartInstances = {};
+
+      const months = [...new Set([...Object.keys(d.monthlyIncome), ...Object.keys(d.monthlyExpense)])].sort();
+      const ctx1 = document.getElementById('incomeExpenseChart');
+      if (ctx1) {
+        chartInstances.incomeExpense = new Chart(ctx1, {
+          type: 'bar',
+          data: {
+            labels: months,
+            datasets: [
+              { label: 'Income', data: months.map(m => d.monthlyIncome[m] || 0), backgroundColor: 'rgba(34, 197, 94, 0.7)' },
+              { label: 'Expenses', data: months.map(m => d.monthlyExpense[m] || 0), backgroundColor: 'rgba(239, 68, 68, 0.7)' }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: colors.text } } }, scales: { x: { ticks: { color: colors.text }, grid: { color: colors.grid } }, y: { ticks: { color: colors.text }, grid: { color: colors.grid } } } }
+        });
+      }
+
+      const catEntries = Object.entries(d.byCategory).filter(([_, v]) => v.expense > 0).sort((a, b) => b[1].expense - a[1].expense).slice(0, 8);
+      const ctx2 = document.getElementById('categoryPieChart');
+      if (ctx2 && catEntries.length > 0) {
+        const palette = ['#3b82f6', '#ef4444', '#22c55e', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+        chartInstances.categoryPie = new Chart(ctx2, {
+          type: 'doughnut',
+          data: {
+            labels: catEntries.map(([n]) => n),
+            datasets: [{ data: catEntries.map(([, v]) => v.expense), backgroundColor: palette }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: colors.text } } } }
+        });
+      }
+
+      const ctx3 = document.getElementById('monthlyTrendChart');
+      if (ctx3 && months.length > 0) {
+        chartInstances.monthlyTrend = new Chart(ctx3, {
+          type: 'line',
+          data: {
+            labels: months,
+            datasets: [
+              { label: 'Income', data: months.map(m => d.monthlyIncome[m] || 0), borderColor: '#22c55e', fill: false, tension: 0.3 },
+              { label: 'Expenses', data: months.map(m => d.monthlyExpense[m] || 0), borderColor: '#ef4444', fill: false, tension: 0.3 }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: colors.text } } }, scales: { x: { ticks: { color: colors.text }, grid: { color: colors.grid } }, y: { ticks: { color: colors.text }, grid: { color: colors.grid } } } }
+        });
+      }
+    }
+
+    summaryBtn.addEventListener('click', () => {
+      summarySection.classList.remove('d-none');
+      renderSummary();
+      summarySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    document.querySelectorAll('#summaryTabs a[data-bs-toggle="tab"]').forEach(el => {
+      el.addEventListener('shown.bs.tab', (e) => {
+        if (e.target.getAttribute('href') === '#chartsTab') Object.values(chartInstances).forEach(c => { if (c) c.resize(); });
+      });
+    });
+    summaryClose.addEventListener('click', () => summarySection.classList.add('d-none'));
+
+    const GEMINI_STORAGE_KEY = 'gemini-api-key';
+    const aiApiKeyModal = new bootstrap.Modal(document.getElementById('aiApiKeyModal'));
+    const aiAnalysisSection = document.getElementById('aiAnalysisSection');
+    const aiAnalysisClose = document.getElementById('aiAnalysisClose');
+    const aiLogsContent = document.getElementById('aiLogsContent');
+    const geminiApiKeyInput = document.getElementById('geminiApiKeyInput');
+    const rememberApiKeyCheck = document.getElementById('rememberApiKey');
+    const saveApiKeyAndAnalyseBtn = document.getElementById('saveApiKeyAndAnalyse');
+    const aiAnalysisLoading = document.getElementById('aiAnalysisLoading');
+    const aiAnalysisContent = document.getElementById('aiAnalysisContent');
+    const aiAnalysisError = document.getElementById('aiAnalysisError');
+
+    function getStoredApiKey() {
+      return (typeof window.GEMINI_API_KEY === 'string' && window.GEMINI_API_KEY.trim()) ||
+             localStorage.getItem(GEMINI_STORAGE_KEY) || '';
+    }
+    function setStoredApiKey(key) { if (key) localStorage.setItem(GEMINI_STORAGE_KEY, key); else localStorage.removeItem(GEMINI_STORAGE_KEY); }
+
+    const GEMINI_MODEL = 'gemini-2.5-flash';
+
+    async function callGeminiApi(apiKey, prompt) {
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: GEMINI_MODEL,
+        contents: prompt,
+        config: { temperature: 0.7, maxOutputTokens: 8192 }
+      });
+      const text = response?.text;
+      if (!text) throw new Error('No response from Gemini');
+      return text;
+    }
+
+    function formatTransactionsForPrompt() {
+      if (!transactionData?.length) return '';
+      return transactionData.map(row =>
+        (Array.isArray(row) ? row : [row]).map(c => String(c ?? '').trim()).join(' | ')
+      ).join('\n');
+    }
+
+    function renderMarkdown(text) {
+      if (!text || typeof text !== 'string') return '';
+      let html = escapeHtml(text)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/^\* (.+)$/gm, '<li>$1</li>')
+        .replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>');
+      const lines = html.split('\n');
+      let result = '', inList = false;
+      for (const line of lines) {
+        const t = line.trim();
+        if (t.startsWith('<li>')) {
+          if (!inList) { result += '<ul>'; inList = true; }
+          result += t;
+        } else {
+          if (inList) { result += '</ul>'; inList = false; }
+          if (t.startsWith('<h2>') || t.startsWith('<h3>')) result += t;
+          else if (t) result += '<p>' + t + '</p>';
+        }
+      }
+      if (inList) result += '</ul>';
+      return result || escapeHtml(text).replace(/\n/g, '<br>');
+    }
+
+    function updateAiLogs(request, response, error) {
+      const time = new Date().toLocaleTimeString();
+      let html = `<div class="log-section"><div class="log-section-title">[${time}] REQUEST (sent to Gemini)</div><div>${escapeHtml(request || '').replace(/\n/g, '<br>')}</div></div>`;
+      if (error) {
+        html += `<div class="log-section"><div class="log-section-title">ERROR</div><div class="text-danger">${escapeHtml(error)}</div></div>`;
+      } else if (response) {
+        html += `<div class="log-section"><div class="log-section-title">RESPONSE (received)</div><div>${escapeHtml(response).replace(/\n/g, '<br>')}</div></div>`;
+      }
+      aiLogsContent.innerHTML = html;
+      aiLogsContent.scrollTop = 0;
+    }
+
+    function appendAiLogs(label, request, response, error) {
+      const time = new Date().toLocaleTimeString();
+      const placeholder = aiLogsContent.querySelector('.text-muted.small');
+      if (placeholder) aiLogsContent.innerHTML = '';
+      let html = `<div class="log-section"><div class="log-section-title">[${time}] ${escapeHtml(label)} — REQUEST</div><div>${escapeHtml(request || '').replace(/\n/g, '<br>')}</div></div>`;
+      if (error) {
+        html += `<div class="log-section"><div class="log-section-title">ERROR</div><div class="text-danger">${escapeHtml(error)}</div></div>`;
+      } else if (response) {
+        html += `<div class="log-section"><div class="log-section-title">RESPONSE</div><div>${escapeHtml(response).replace(/\n/g, '<br>')}</div></div>`;
+      }
+      aiLogsContent.insertAdjacentHTML('beforeend', html);
+      aiLogsContent.scrollTop = aiLogsContent.scrollHeight;
+    }
+
+    function appendAiLogResponse(label, response, error) {
+      const time = new Date().toLocaleTimeString();
+      const placeholder = aiLogsContent.querySelector('.text-muted.small');
+      if (placeholder) aiLogsContent.innerHTML = '';
+      let html = `<div class="log-section"><div class="log-section-title">[${time}] ${escapeHtml(label)} — `;
+      if (error) {
+        html += `ERROR</div><div class="text-danger">${escapeHtml(error)}</div></div>`;
+      } else {
+        html += `RESPONSE</div><div>${escapeHtml(response || '').replace(/\n/g, '<br>')}</div></div>`;
+      }
+      aiLogsContent.insertAdjacentHTML('beforeend', html);
+      aiLogsContent.scrollTop = aiLogsContent.scrollHeight;
+    }
+
+    function getAiLogsText() {
+      const sections = aiLogsContent.querySelectorAll('.log-section');
+      return Array.from(sections).map(s => {
+        const title = s.querySelector('.log-section-title')?.textContent || '';
+        const body = s.querySelector('.log-section > div:last-child')?.textContent || '';
+        return title + '\n' + body;
+      }).join('\n\n');
+    }
+
+    document.getElementById('aiLogsClearBtn')?.addEventListener('click', () => {
+      aiLogsContent.innerHTML = '<div class="text-muted small">Click "Analyse with AI" to see request and response logs.</div>';
+    });
+    document.getElementById('aiLogsCopyBtn')?.addEventListener('click', async () => {
+      const text = getAiLogsText();
+      if (!text || text.includes('Click "Analyse with AI"')) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        toast.classList.add('visible');
+        toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>AI logs copied!';
+        setTimeout(() => { toast.classList.remove('visible'); toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied to clipboard!'; }, 1500);
+      } catch (_) {}
+    });
+
+    async function runAIAnalysis(apiKey) {
+      aiAnalysisSection.classList.remove('d-none');
+      aiAnalysisLoading.classList.remove('d-none');
+      aiAnalysisContent.classList.add('d-none');
+      aiAnalysisError.classList.add('d-none');
+      aiAnalysisContent.innerHTML = '';
+
+      const txText = formatTransactionsForPrompt();
+      const prompt = `You are a financial analyst. Analyse the following bank transaction data (format: columns separated by |, rows by newline) and provide:
+
+1. **Spending patterns** - Identify top expense categories and habits
+2. **Income vs expenses** - Summarise inflows and outflows
+3. **Notable observations** - Unusual or recurring transactions
+4. **Suggestions** - Practical tips to improve spending or save more
+5. **Overall summary** - Brief financial health assessment
+
+Be thorough and detailed. Include specific amounts, totals, and breakdowns. Use bullet points and clear headings. Format as markdown.
+
+Transaction data:
+${txText}`;
+
+      updateAiLogs(prompt, null, null);
+      debugLog('Sending request to Gemini', 'active', `${(prompt.length / 1024).toFixed(1)} KB`);
+
+      try {
+        const result = await callGeminiApi(apiKey, prompt);
+        updateAiLogs(prompt, result, null);
+        aiAnalysisLoading.classList.add('d-none');
+        aiAnalysisContent.innerHTML = renderMarkdown(result);
+        aiAnalysisContent.classList.remove('d-none');
+        aiAnalysisSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        debugLog('AI analysis complete', 'success');
+      } catch (err) {
+        const errMsg = err?.message || String(err);
+        updateAiLogs(prompt, null, errMsg);
+        aiAnalysisLoading.classList.add('d-none');
+        aiAnalysisError.textContent = 'AI analysis failed: ' + errMsg;
+        aiAnalysisError.classList.remove('d-none');
+        debugLog('AI analysis failed', 'error', errMsg);
+      }
+    }
+
+    aiAnalysisClose.addEventListener('click', () => aiAnalysisSection.classList.add('d-none'));
+
+    function appendChatMessage(role, text) {
+      chatPlaceholder?.classList.add('d-none');
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const div = document.createElement('div');
+      div.className = `chat-msg ${role}`;
+      const body = role === 'assistant' ? renderMarkdown(text) : escapeHtml(text).replace(/\n/g, '<br>');
+      div.innerHTML = `<div class="msg-time">${escapeHtml(time)}</div><div class="msg-body">${body}</div>`;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function sendChatMessage(question) {
+      if (!transactionData?.length || !question?.trim()) return;
+      const apiKey = getStoredApiKey();
+      if (!apiKey?.trim()) {
+        geminiApiKeyInput.value = '';
+        aiApiKeyModal.show();
+        return;
+      }
+      chatWithAISection.classList.remove('d-none');
+      appendChatMessage('user', question);
+      chatInput.value = '';
+      chatSendBtn.disabled = true;
+      const txText = formatTransactionsForPrompt();
+      const prompt = `You are a financial assistant. Answer the user's question based ONLY on the following bank transaction data. Be detailed and comprehensive. Include specific amounts, totals, breakdowns, and trends. Use numbers and percentages where relevant.
+
+Transaction data (columns: Date | Narration/Particulars | Debit | Credit | Balance, etc.):
+${txText}
+
+User question: ${question}`;
+
+      appendAiLogs('Chat', prompt, null, null);
+      debugLog('Chat: sending question to Gemini', 'active');
+
+      try {
+        const result = await callGeminiApi(apiKey, prompt);
+        appendAiLogResponse('Chat', result, null);
+        appendChatMessage('assistant', result);
+        debugLog('Chat: response received', 'success');
+      } catch (err) {
+        const errMsg = err?.message || String(err);
+        appendAiLogResponse('Chat', null, errMsg);
+        appendChatMessage('assistant', 'Error: ' + errMsg);
+        debugLog('Chat failed', 'error', errMsg);
+      } finally {
+        chatSendBtn.disabled = false;
+      }
+    }
+
+    chatWithAIBtn.addEventListener('click', () => {
+      if (!transactionData?.length) return;
+      const apiKey = getStoredApiKey();
+      if (!apiKey?.trim()) {
+        geminiApiKeyInput.value = '';
+        aiApiKeyModal.show();
+        return;
+      }
+      chatWithAISection.classList.remove('d-none');
+      chatWithAISection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      chatInput.focus();
+    });
+
+    chatCloseBtn.addEventListener('click', () => chatWithAISection.classList.add('d-none'));
+
+    document.getElementById('chatClearBtn')?.addEventListener('click', () => {
+      chatMessages.querySelectorAll('.chat-msg').forEach(m => m.remove());
+      chatPlaceholder?.classList.remove('d-none');
+    });
+
+    chatSendBtn.addEventListener('click', () => {
+      const q = chatInput.value.trim();
+      if (q) sendChatMessage(q);
+    });
+
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const q = chatInput.value.trim();
+        if (q) sendChatMessage(q);
+      }
+    });
+
+    document.querySelectorAll('#chatSuggestions button[data-question]').forEach(btn => {
+      btn.addEventListener('click', () => sendChatMessage(btn.dataset.question));
+    });
+
+    analyseWithAIBtn.addEventListener('click', async () => {
+      if (!transactionData?.length) return;
+      const apiKey = getStoredApiKey();
+      if (!apiKey?.trim()) {
+        geminiApiKeyInput.value = '';
+        aiApiKeyModal.show();
+        return;
+      }
+      await runAIAnalysis(apiKey);
+    });
+
+    saveApiKeyAndAnalyseBtn.addEventListener('click', async () => {
+      const key = geminiApiKeyInput.value.trim();
+      if (!key) {
+        geminiApiKeyInput.focus();
+        return;
+      }
+      if (rememberApiKeyCheck.checked) setStoredApiKey(key);
+      aiApiKeyModal.hide();
+      await runAIAnalysis(key);
+    });
+
+    geminiApiKeyInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') saveApiKeyAndAnalyseBtn.click();
+    });
+
+    downloadPdfBtn.addEventListener('click', async () => {
+      if (!analysisData) return;
+      summarySection.classList.remove('d-none');
+      renderSummary();
+      summarySection.scrollIntoView({ behavior: 'auto', block: 'start' });
+      await new Promise(r => setTimeout(r, 300));
+      const opt = { margin: 12, filename: 'Bank-Statement-Summary.pdf', image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+      try {
+        await html2pdf().set(opt).from(summarySection).save();
+        toast.classList.add('visible');
+        toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Summary PDF downloaded!';
+        setTimeout(() => { toast.classList.remove('visible'); toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied to clipboard!'; }, 2500);
+      } catch (e) {
+        errorMsg.textContent = 'PDF download failed. Try again.';
+      }
+    });
+
+    downloadUnlockedPdfBtn.addEventListener('click', async () => {
+      if (!currentPdfDoc) return;
+      downloadUnlockedPdfBtn.disabled = true;
+      const origText = downloadUnlockedPdfBtn.innerHTML;
+      downloadUnlockedPdfBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+      try {
+        const JsPDF = (typeof window.jspdf !== 'undefined' && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
+        if (!JsPDF) throw new Error('jsPDF not loaded');
+        const pdf = new JsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const scale = 2;
+        for (let i = 1; i <= currentPdfDoc.numPages; i++) {
+          const page = await currentPdfDoc.getPage(i);
+          const viewport = page.getViewport({ scale });
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d');
+          await page.render({ canvasContext: ctx, viewport }).promise;
+          const imgData = canvas.toDataURL('image/jpeg', 0.92);
+          const pdfW = pdf.internal.pageSize.getWidth();
+          const pdfH = pdf.internal.pageSize.getHeight();
+          let imgW = pdfW, imgH = (viewport.height * pdfW) / viewport.width;
+          if (imgH > pdfH) { const r = pdfH / imgH; imgW *= r; imgH = pdfH; }
+          if (i > 1) pdf.addPage();
+          pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
+        }
+        const baseName = (currentPdfFile?.name || 'statement').replace(/\.pdf$/i, '');
+        pdf.save(`${baseName}-unlocked.pdf`);
+        toast.classList.add('visible');
+        toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Unlocked PDF downloaded!';
+        setTimeout(() => { toast.classList.remove('visible'); toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied to clipboard!'; }, 2500);
+      } catch (e) {
+        errorMsg.textContent = 'Could not create unlocked PDF. ' + (e?.message || '');
+      } finally {
+        downloadUnlockedPdfBtn.disabled = false;
+        downloadUnlockedPdfBtn.innerHTML = origText;
+      }
+    });
+
+    function copyAsTsv() {
+      if (extractedData.length === 0) return false;
+      const tsv = extractedData.map(row =>
+        (Array.isArray(row) ? row : [row]).map(cell => {
+          const s = String(cell ?? '');
+          if (s.includes('\t') || s.includes('\n') || s.includes('"')) return `"${s.replace(/"/g, '""')}"`;
+          return s;
+        }).join('\t')
+      ).join('\n');
+      return tsv;
+    }
+
+    function copyAsWordHtml() {
+      if (extractedData.length === 0) return false;
+      const headers = extractedData[0];
+      const rows = extractedData.slice(1);
+      const th = headers.map(h => `<th>${escapeHtml(String(h))}</th>`).join('');
+      const trs = rows.map(row => {
+        const cells = [...(Array.isArray(row) ? row : [row])];
+        while (cells.length < headers.length) cells.push('');
+        return `<tr>${cells.map(c => `<td>${escapeHtml(String(c))}</td>`).join('')}</tr>`;
+      }).join('');
+      return `<table border="1" cellpadding="4" cellspacing="0"><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table>`;
+    }
+
+    copyBtn.addEventListener('click', async () => {
+      const tsv = copyAsTsv();
+      if (!tsv) return;
+      try {
+        await navigator.clipboard.writeText(tsv);
+        toast.classList.add('visible');
+        toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied to Excel!';
+        setTimeout(() => { toast.classList.remove('visible'); toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied to clipboard!'; }, 2000);
+      } catch (err) {
+        errorMsg.textContent = 'Could not copy. Please select and copy manually.';
+      }
+    });
+
+    copyExcelBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const tsv = copyAsTsv();
+      if (!tsv) return;
+      try {
+        await navigator.clipboard.writeText(tsv);
+        toast.classList.add('visible');
+        toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied as Excel (TSV)!';
+        setTimeout(() => { toast.classList.remove('visible'); toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied to clipboard!'; }, 2000);
+      } catch (err) {
+        errorMsg.textContent = 'Could not copy. Please select and copy manually.';
+      }
+    });
+
+    copyWordBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const html = copyAsWordHtml();
+      if (!html) return;
+      const plainText = extractedData.map(row => (Array.isArray(row) ? row : [row]).join('\t')).join('\n');
+      try {
+        const blobHtml = new Blob([html], { type: 'text/html' });
+        const blobPlain = new Blob([plainText], { type: 'text/plain' });
+        await navigator.clipboard.write([new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobPlain })]);
+        toast.classList.add('visible');
+        toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied for Word/Document!';
+        setTimeout(() => { toast.classList.remove('visible'); toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied to clipboard!'; }, 2000);
+      } catch (err) {
+        try {
+          await navigator.clipboard.writeText(plainText);
+          toast.classList.add('visible');
+          toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied as text (paste into Word)';
+          setTimeout(() => { toast.classList.remove('visible'); toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied to clipboard!'; }, 2000);
+        } catch (e2) {
+          errorMsg.textContent = 'Could not copy. Please select and copy manually.';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
