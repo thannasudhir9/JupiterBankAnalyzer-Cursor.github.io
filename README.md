@@ -1,6 +1,6 @@
 # Jupiter Bank Statement Analyzer
 
-A client-side web application for uploading, unlocking, and analyzing bank statement PDFs. Extracts account holder information and transaction data into spreadsheet-friendly tables with one-click copy to Excel or Google Sheets.
+A client-side web application for uploading, unlocking, and analyzing bank statement PDFs and Excel files. Extracts account holder information and transaction data into spreadsheet-friendly tables with one-click copy to Excel or Google Sheets.
 
 ---
 
@@ -9,7 +9,7 @@ A client-side web application for uploading, unlocking, and analyzing bank state
 | Field | Value |
 |-------|-------|
 | **Project Name** | Jupiter Bank Statement Analyzer |
-| **Version** | 1.2.0 |
+| **Version** | 1.4.0 |
 | **Type** | Single-page web application |
 | **License** | MIT |
 | **Environment** | Browser (client-side only, no backend required) |
@@ -22,14 +22,17 @@ A client-side web application for uploading, unlocking, and analyzing bank state
 JupiterBankStatementAnalyzer/
 ├── index.html              # Main application (HTML, CSS, JS)
 ├── README.md               # Project overview and quick start
+├── CHANGELOG.md            # Summary of changes by version
 ├── LICENSE                 # MIT License
 ├── .gitignore
 ├── docs/
+│   ├── LOGS.md             # Logs documentation (Processing Steps, AI API Logs)
 │   ├── PRD.md              # Product Requirements Document
 │   ├── TECHNICAL.md        # Technical architecture and implementation
 │   ├── ARCHITECTURE.md     # System design and data flow
 │   └── CHANGELOG_PROMPTS.md # Development prompts and solutions log
-└── AccountStatement_*.pdf  # (optional) Sample statement for testing
+├── AccountStatement_*.pdf   # (optional) Sample PDF statement for testing
+└── AccountStatement_*.xlsx  # (optional) Sample Excel statement for testing
 ```
 
 ---
@@ -40,19 +43,22 @@ JupiterBankStatementAnalyzer/
 
 | Feature | Description |
 |---------|-------------|
-| **PDF Upload** | Drag & drop or click to select bank statement PDFs |
+| **PDF & Excel Upload** | Drag & drop or click to select bank statement PDFs or Excel (.xls, .xlsx) |
 | **Smart PDF Detection** | Auto-detects unlocked vs password-protected PDFs on file select |
 | **Conditional Password UI** | Password input shown **only** for protected PDFs; hidden for unlocked PDFs |
 | **View / Unlock & View** | **View** button for unlocked PDFs; **Unlock & View** for protected (after entering password) |
 | **Two-Table Extraction** | Separates **account holder info** (sensitive) from **transaction list** |
-| **Robust Table Extraction** | Fallback logic for varied formats; broader header/pattern detection; supports multiple date and amount formats |
+| **Excel Structure** | Lines 1–13 = personal info (display only); Line 16 = headers; Lines 17+ = transactions |
+| **Personal Info Toggle** | Eye icon to show/hide account holder details |
+| **Robust Table Extraction** | PDF: heuristics; Excel: fixed layout. **Withdrawals** (expenses), **Deposits** (income), **Dr/Cr** (type), **Particulars** (categorization) |
 | **Spreadsheet View** | Renders extracted data in HTML tables |
 | **Copy to Excel** | One-click copy as TSV for paste into Excel or Google Sheets |
 | **Copy for Word/Document** | Copy as formatted table for paste into Word or other documents |
-| **Download Unlocked PDF** | Save the decrypted PDF without password protection |
+| **Download Unlocked PDF** | Save the decrypted PDF without password (hidden for Excel files) |
 | **Download Summary PDF** | Export financial analysis and charts as PDF |
-| **Summary & Charts** | Financial analytics: income vs expense, category breakdown, monthly trends |
-| **Auto-Categorization** | Transactions auto-categorized (income, expenses, investment) by narration keywords |
+| **Summary & Charts** | Financial analytics: income vs expense, category breakdown, daily/weekly/monthly/yearly views, utilization (Expense/Income %, Savings rate) |
+| **Auto-Categorization** | Regex-based categories: Income, Groceries (Blinkit, BigBasket), Food & Dining (Swiggy, Zomato), E-commerce (Amazon, Flipkart), UPI & Transfers, Entertainment, etc. |
+| **Categorize with AI** | Use Gemini to assign categories per transaction; improves accuracy for UPI, merchants, cryptic narrations |
 | **Theme Toggle** | Dark, Light, and System themes with persisted preference |
 | **Analyse with AI** | One-click AI analysis via Gemini; spending patterns, suggestions, financial health summary |
 | **Chat with AI** | Ask questions about your statement; monthly/weekly/yearly spending, top categories, usage |
@@ -63,9 +69,10 @@ JupiterBankStatementAnalyzer/
 
 | Feature | Description |
 |---------|-------------|
+| **Categorize with AI** | Assigns categories per transaction via Gemini; uses Income, Groceries, Food & Dining, E-commerce & Shopping, UPI & Transfers, Entertainment, etc. |
 | **Analyse with AI** | Sends transaction data to Gemini; returns thorough analysis with amounts and breakdowns |
 | **Chat with AI** | Q&A interface; suggested questions (monthly spending, top categories, etc.) or free-form |
-| **Response Limit** | maxOutputTokens 8192 for detailed replies |
+| **Model Selector** | Choose model in AI Setup: Gemini 2.5 Flash (default), Gemini 3 Flash Preview, Gemini 2.5 Pro, Gemini 2.0 Flash, Gemini 1.5 Flash, Gemini 1.5 Pro |
 | **API Key** | Enter in app when prompted; get free key at [Google AI Studio](https://aistudio.google.com/app/api-keys) or [docs](https://ai.google.dev/gemini-api/docs/api-key) |
 
 ### Security & Privacy
@@ -158,7 +165,7 @@ JupiterBankStatementAnalyzer/
 
 ### AI Analysis Setup (Optional)
 
-When you click **Analyse with AI** or **Chat with AI**, you'll be prompted for your Gemini API key. Get a free key at [Google AI Studio → API Keys](https://aistudio.google.com/app/api-keys) or see the [API key docs](https://ai.google.dev/gemini-api/docs/api-key). Your key is stored in your browser (`localStorage`) and never sent to our servers.
+When you click **Categorize with AI**, **Analyse with AI**, or **Chat with AI**, you'll be prompted for your Gemini API key. Get a free key at [Google AI Studio → API Keys](https://aistudio.google.com/app/api-keys) or see the [API key docs](https://ai.google.dev/gemini-api/docs/api-key). Your key is stored in your browser (`localStorage`) and never sent to our servers.
 
 ### Verification
 
@@ -169,23 +176,30 @@ When you click **Analyse with AI** or **Chat with AI**, you'll be prompted for y
 
 ### Usage Flow
 
-**Unlocked PDF:**
+**PDF (unlocked):**
 1. Upload your bank statement PDF
 2. App auto-detects it is unlocked (shows "Checking PDF..." briefly)
 3. Only **View** button appears (no password input)
 4. Click **View** to extract and display data
 
-**Password-Protected PDF:**
+**PDF (password-protected):**
 1. Upload your bank statement PDF
 2. App detects password protection
 3. Password input and **Unlock & View** button appear
 4. Enter password and click **Unlock & View**
 5. Review the extracted tables
 
+**Excel (.xls, .xlsx):**
+1. Upload your bank statement Excel file
+2. No password needed — **View** button appears immediately
+3. Click **View**; first 13 lines show as personal info (eye icon to hide/show)
+4. Lines 14–16+: column headers at line 16 (Value Date, Particulars, Dr/Cr, Withdrawals, Deposits), transaction data from line 17
+
 **After extraction:**
 - Use **Copy to Excel** / **Copy for Word** to paste into spreadsheets or documents
 - Use **Download Unlocked PDF** to save a password-free copy of the statement
 - Use **Summary & Charts** and **Download Summary PDF** for financial analysis
+- Use **Categorize with AI** to improve transaction categories (Blinkit, UPI, Amazon, etc.)
 - Use **Analyse with AI** for automated analysis (spending patterns, suggestions)
 - Use **Chat with AI** to ask questions (e.g. "What is my monthly spending?")
 
@@ -195,6 +209,8 @@ When you click **Analyse with AI** or **Chat with AI**, you'll be prompted for y
 
 | Document | Description |
 |----------|-------------|
+| [CHANGELOG.md](CHANGELOG.md) | Summary of changes by version (Added, Changed, Fixed) |
+| [LOGS.md](docs/LOGS.md) | Logs documentation — Processing Steps, AI API Logs, format, troubleshooting |
 | [PRD.md](docs/PRD.md) | Product Requirements Document — goals, user stories, acceptance criteria |
 | [TECHNICAL.md](docs/TECHNICAL.md) | Technical documentation — stack, APIs, extraction logic |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Architecture — data flow, component diagram, file structure |
@@ -208,6 +224,7 @@ When you click **Analyse with AI** or **Chat with AI**, you'll be prompted for y
 - **UI Framework**: Bootstrap 5.3.2
 - **Icons**: Bootstrap Icons 1.11.1
 - **PDF Engine**: PDF.js (Mozilla) v4.0.379 via CDN
+- **Excel Engine**: SheetJS (xlsx) v0.20.3 via CDN
 - **Charts**: Chart.js 4.4.1
 - **AI**: Google Gemini 2.5 Flash via `@google/genai` SDK (ESM)
 - **Styling**: Custom CSS with CSS variables, dark/light themes
@@ -215,13 +232,19 @@ When you click **Analyse with AI** or **Chat with AI**, you'll be prompted for y
 
 ---
 
-## Supported PDF Formats
+## Supported Formats
 
+### PDF
 - Password-protected and unprotected PDFs
 - Multi-page statements
-- Bank statements with:
-  - **Table 1**: Account holder info (name, account number, address, branch, IFSC, etc.)
-  - **Table 2**: Transactions (date, description, debit, credit, balance)
+- Bank statements with Table 1 (account holder info) and Table 2 (transactions)
+
+### Excel (.xls, .xlsx)
+- Fixed layout: Lines 1–13 = personal info; Line 16 = column headers; Lines 17+ = transactions
+- **Column mapping**: Value Date, **Particulars** (description for categorization), **Dr/Cr** (debit/credit type), **Withdrawals** (expenses), **Deposits** (income)
+
+### Currency (INR)
+- Amounts in Indian Rupees (₹). Format: `100.12` = 100 rupees, 12 paisa (1 rupee = 100 paisa)
 
 ---
 
@@ -236,67 +259,3 @@ When you click **Analyse with AI** or **Chat with AI**, you'll be prompted for y
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
-
-
-
-Logs :
-
-http://localhost:8765/
-
-cd /Users/sthanna/Downloads/VSCode-NewMac/JupiterBankStatementAnalyzer && python3 -m http.server 8765
-::1 - - [18/Feb/2026 09:54:41] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 09:54:42] code 404, message File not found
-::1 - - [18/Feb/2026 09:54:42] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 09:57:55] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 09:57:55] code 404, message File not found
-::1 - - [18/Feb/2026 09:57:55] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 10:04:04] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:11:16] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:11:17] code 404, message File not found
-::1 - - [18/Feb/2026 10:11:17] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 10:19:48] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:19:49] code 404, message File not found
-::1 - - [18/Feb/2026 10:19:49] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 10:21:11] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:21:12] code 404, message File not found
-::1 - - [18/Feb/2026 10:21:12] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 10:23:32] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:23:32] code 404, message File not found
-::1 - - [18/Feb/2026 10:23:32] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 10:27:56] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:27:57] code 404, message File not found
-::1 - - [18/Feb/2026 10:27:57] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 10:30:42] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:30:43] code 404, message File not found
-::1 - - [18/Feb/2026 10:30:43] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 10:30:43] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:30:44] code 404, message File not found
-::1 - - [18/Feb/2026 10:30:44] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 10:33:41] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:33:42] code 404, message File not found
-::1 - - [18/Feb/2026 10:33:42] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 10:36:23] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:36:23] code 404, message File not found
-::1 - - [18/Feb/2026 10:36:23] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 10:41:28] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:41:28] "GET /api-config.js HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:41:30] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:41:30] "GET /api-config.js HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:41:30] code 404, message File not found
-::1 - - [18/Feb/2026 10:41:30] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 10:43:49] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:43:49] "GET /api-config.js HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:43:50] code 404, message File not found
-::1 - - [18/Feb/2026 10:43:50] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 10:48:50] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:48:50] "GET /api-config.js HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:48:51] code 404, message File not found
-::1 - - [18/Feb/2026 10:48:51] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 10:53:24] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:53:24] "GET /api-config.js HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 10:53:24] code 404, message File not found
-::1 - - [18/Feb/2026 10:53:24] "GET /favicon.ico HTTP/1.1" 404 -
-::1 - - [18/Feb/2026 11:04:48] "GET / HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 11:04:48] "GET /api-config.js HTTP/1.1" 200 -
-::1 - - [18/Feb/2026 11:04:50] code 404, message File not found
-::1 - - [18/Feb/2026 11:04:50] "GET /favicon.ico HTTP/1.1" 404 -

@@ -2,8 +2,8 @@
 
 ## Jupiter Bank Statement Analyzer
 
-**Version:** 1.2  
-**Last Updated:** February 19, 2025
+**Version:** 1.4  
+**Last Updated:** February 18, 2026 (IST)
 
 ---
 
@@ -83,6 +83,8 @@ A single-page web app that:
 | US-13 | As a user, I can chat with AI about my transactions | Chat with AI; ask questions; get detailed answers with amounts | P1 |
 | US-14 | As a user, I see suggested questions in Chat | Quick buttons: monthly spending, top categories, etc. | P1 |
 | US-15 | As a user, I can view AI request/response logs | AI API Logs panel shows what was sent and received | P2 |
+| US-15a | As a user, I can select which Gemini model to use | Model dropdown in AI Setup; default gemini-2.5-flash; options include Gemini 3 Flash Preview, 2.5 Pro, 2.0 Flash, 1.5 Flash/Pro | P2 |
+| US-15b | As a user, I can categorize transactions with AI | Categorize with AI button; Gemini assigns categories (Blinkit, UPI, Amazon, etc.); summary updates | P1 |
 
 ### Epic: Developer Experience / Debug
 
@@ -133,7 +135,7 @@ A single-page web app that:
 - Password used only for local decryption
 - Sensitive data displayed only in user’s browser
 
-- API key stored in gitignored config file or localStorage
+- API key and model choice stored in localStorage only
 
 ### 6.3 Compatibility
 

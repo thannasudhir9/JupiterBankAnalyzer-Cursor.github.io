@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bank Statement Analyzer</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2'><rect x='4' y='2' width='16' height='20' rx='2'/><path d='M8 7h8M8 11h8M8 15h4'/></svg>" type="image/svg+xml">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <style>
@@ -16,49 +17,78 @@
       padding: 0;
     }
 
+    /* Slate + Emerald theme */
     [data-theme="dark"] {
-      --bg-primary: #0f1419;
-      --bg-secondary: #1a2332;
-      --bg-card: #1e2a3a;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --accent-muted: #60a5fa;
+      --background: #0f172a;
+      --foreground: #f1f5f9;
+      --card: #1e293b;
+      --card-foreground: #f1f5f9;
+      --muted: #334155;
+      --muted-foreground: #94a3b8;
+      --border: #334155;
+      --input: #334155;
+      --ring: #10b981;
+      --primary: #10b981;
+      --primary-foreground: #0f172a;
+      --secondary: #334155;
+      --secondary-foreground: #f1f5f9;
+      --destructive: #f87171;
+      --destructive-foreground: #0f172a;
+      --success: #10b981;
+      --error: #f87171;
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --accent: #10b981;
+      --accent-hover: #34d399;
+      --accent-muted: #6ee7b7;
       --text-primary: #f1f5f9;
       --text-secondary: #94a3b8;
-      --border: #334155;
-      --success: #22c55e;
-      --error: #ef4444;
-      --body-bg: #0f1419;
+      --body-bg: #0f172a;
     }
     [data-theme="light"] {
-      --bg-primary: #f8fafc;
-      --bg-secondary: #f1f5f9;
+      --background: #ffffff;
+      --foreground: #0f172a;
+      --card: #ffffff;
+      --card-foreground: #0f172a;
+      --muted: #f1f5f9;
+      --muted-foreground: #64748b;
+      --border: #e2e8f0;
+      --input: #e2e8f0;
+      --ring: #10b981;
+      --primary: #059669;
+      --primary-foreground: #ffffff;
+      --secondary: #f1f5f9;
+      --secondary-foreground: #0f172a;
+      --destructive: #dc2626;
+      --destructive-foreground: #ffffff;
+      --success: #059669;
+      --error: #dc2626;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
       --bg-card: #ffffff;
-      --accent: #2563eb;
-      --accent-hover: #1d4ed8;
-      --accent-muted: #3b82f6;
+      --accent: #059669;
+      --accent-hover: #047857;
+      --accent-muted: #10b981;
       --text-primary: #0f172a;
       --text-secondary: #64748b;
-      --border: #e2e8f0;
-      --success: #16a34a;
-      --error: #dc2626;
       --body-bg: #f8fafc;
     }
     @media (prefers-color-scheme: dark) {
       [data-theme="system"] {
-        --bg-primary: #0f1419;
-        --bg-secondary: #1a2332;
-        --bg-card: #1e2a3a;
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-card: #1e293b;
         --text-primary: #f1f5f9;
         --text-secondary: #94a3b8;
         --border: #334155;
-        --body-bg: #0f1419;
+        --body-bg: #0f172a;
       }
     }
     @media (prefers-color-scheme: light) {
       [data-theme="system"] {
-        --bg-primary: #f8fafc;
-        --bg-secondary: #f1f5f9;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
         --bg-card: #ffffff;
         --text-primary: #0f172a;
         --text-secondary: #64748b;
@@ -68,13 +98,10 @@
     }
 
     body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--body-bg);
       color: var(--text-primary);
       min-height: 100vh;
-      background-image: 
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.15), transparent),
-        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(99, 102, 241, 0.08), transparent);
     }
 
     .container, .container.container-lg {
@@ -100,17 +127,10 @@
       font-size: 0.95rem;
     }
 
-    .upload-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2rem;
-      margin-bottom: 1.5rem;
-    }
 
     .upload-zone {
       border: 2px dashed var(--border);
-      border-radius: 12px;
+      border-radius: 0.5rem;
       padding: 3rem 2rem;
       text-align: center;
       cursor: pointer;
@@ -119,12 +139,12 @@
     }
     .upload-zone:hover, .upload-zone.dragover {
       border-color: var(--accent);
-      background: rgba(59, 130, 246, 0.08);
+      background: rgba(16, 185, 129, 0.08);
     }
     .upload-zone.uploaded {
       border-style: solid;
       border-color: var(--success);
-      background: rgba(34, 197, 94, 0.08);
+      background: rgba(16, 185, 129, 0.08);
     }
 
     .upload-icon {
@@ -139,7 +159,7 @@
 
     .file-name {
       font-weight: 500;
-      color: var(--accent-muted);
+      color: var(--text-secondary);
       margin-top: 0.5rem;
     }
 
@@ -148,40 +168,39 @@
     }
 
     .btn {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
       font-family: inherit;
     }
 
     .btn-primary {
-      background: var(--accent);
-      color: white;
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border: 1px solid var(--border);
     }
 
     .btn-primary:hover {
       background: var(--accent-hover);
-      transform: translateY(-1px);
+      opacity: 0.9;
     }
 
     .btn-primary:disabled {
       opacity: 0.5;
       cursor: not-allowed;
-      transform: none;
     }
 
     .btn-success {
-      background: var(--success);
-      color: white;
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border: 1px solid var(--border);
     }
 
     .btn-success:hover {
-      filter: brightness(1.1);
-      transform: translateY(-1px);
+      opacity: 0.9;
     }
 
     .error-msg {
@@ -216,12 +235,11 @@
     .table-wrapper {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 0.5rem;
       overflow-x: auto;
       overflow-y: auto;
       max-height: 70vh;
       -webkit-overflow-scrolling: touch;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
     .table-wrapper table {
       width: max-content;
@@ -250,42 +268,65 @@
       border-bottom: 2px solid var(--border);
     }
     .table-wrapper td { border-bottom: 1px solid var(--border); }
-    .table-wrapper tr:hover td { background: rgba(59, 130, 246, 0.06); }
+    .table-wrapper tr:hover td { background: var(--muted); }
 
     .personal-info-table .table-wrapper { max-height: 220px; }
 
-    /* Bootstrap overrides for theme */
-    .card { background: var(--bg-card) !important; border-color: var(--border) !important; }
-    .card-body { background: var(--bg-card) !important; color: var(--text-primary) !important; }
-    .card-header { background: var(--bg-secondary) !important; border-color: var(--border) !important; color: var(--text-primary) !important; }
-    .form-control { background: var(--bg-secondary) !important; border-color: var(--border) !important; color: var(--text-primary) !important; }
-    .form-control::placeholder { color: var(--text-secondary); }
-    .form-control:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important; }
-    .btn-outline-secondary { border-color: var(--border) !important; color: var(--text-secondary) !important; }
-    .btn-outline-secondary:hover { background: var(--bg-secondary) !important; border-color: var(--border) !important; color: var(--text-primary) !important; }
-    .btn-check:checked + .btn-outline-secondary { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
+    /* Bootstrap overrides - shadcn-inspired neutral */
+    .card { background: var(--card) !important; border: 1px solid var(--border) !important; border-radius: 0.5rem !important; }
+    .card-body { background: var(--card) !important; color: var(--card-foreground) !important; }
+    .card-header { background: var(--muted) !important; border-color: var(--border) !important; color: var(--foreground) !important; }
+    .form-control { background: var(--background) !important; border: 1px solid var(--input) !important; color: var(--foreground) !important; border-radius: 0.375rem !important; }
+    .form-control::placeholder { color: var(--muted-foreground); }
+    .form-control:focus, .form-select:focus { border-color: var(--ring) !important; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important; outline: none !important; }
+    .form-select { background: var(--background) !important; border: 1px solid var(--input) !important; color: var(--foreground) !important; border-radius: 0.375rem !important; }
+    .btn-outline-secondary { border: 1px solid var(--border) !important; color: var(--foreground) !important; background: transparent !important; }
+    .btn-outline-secondary:hover { background: var(--secondary) !important; border-color: var(--border) !important; color: var(--foreground) !important; }
+    .btn-check:checked + .btn-outline-secondary { background: var(--primary) !important; border-color: var(--primary) !important; color: var(--primary-foreground) !important; }
     .text-muted { color: var(--text-secondary) !important; }
     .app-toast { 
       position: fixed !important; bottom: 4rem; right: 1.5rem; z-index: 1100;
       opacity: 0; transform: translateY(100px); pointer-events: none;
       transition: opacity 0.3s ease, transform 0.3s ease;
+      background: rgba(16, 185, 129, 0.15) !important; color: var(--foreground) !important; border: 1px solid var(--success) !important;
     }
     .app-toast.visible {
       opacity: 1; transform: translateY(0); pointer-events: auto;
     }
+    .alert-success { background: rgba(16, 185, 129, 0.15) !important; color: var(--foreground) !important; border: 1px solid var(--success) !important; }
+    .alert-danger { background: rgba(248, 113, 113, 0.15) !important; color: var(--foreground) !important; border: 1px solid var(--error) !important; }
 
     .nav-tabs { border-color: var(--border) !important; }
-    .nav-tabs .nav-link { color: var(--text-secondary) !important; background: transparent !important; border-color: transparent !important; }
-    .nav-tabs .nav-link:hover { color: var(--text-primary) !important; border-color: var(--border) !important; }
-    .nav-tabs .nav-link.active { color: var(--accent) !important; background: var(--bg-card) !important; border-color: var(--border) var(--border) var(--bg-card) !important; }
+    .nav-tabs .nav-link { color: var(--muted-foreground) !important; background: transparent !important; border-color: transparent !important; }
+    .nav-tabs .nav-link:hover { color: var(--foreground) !important; border-color: var(--border) !important; }
+    .nav-tabs .nav-link.active { color: var(--accent) !important; background: var(--card) !important; border-color: var(--border) var(--border) transparent !important; }
     .tab-content, .tab-pane { color: var(--text-primary) !important; background: transparent !important; }
-    .dropdown-menu { background: var(--bg-card) !important; border-color: var(--border) !important; }
-    .dropdown-item { color: var(--text-primary) !important; }
-    .dropdown-item:hover { background: var(--bg-secondary) !important; }
+    .dropdown-menu { background: var(--card) !important; border: 1px solid var(--border) !important; border-radius: 0.375rem !important; }
+    .dropdown-item { color: var(--foreground) !important; }
+    .dropdown-item:hover { background: var(--muted) !important; }
+    .btn-info { background: var(--primary) !important; color: var(--primary-foreground) !important; border: 1px solid var(--border) !important; }
+    .btn-info:hover { background: var(--secondary) !important; color: var(--foreground) !important; }
+    .btn-outline-info, .btn-outline-primary { border: 1px solid var(--border) !important; color: var(--accent) !important; background: transparent !important; }
+    .btn-outline-info:hover, .btn-outline-primary:hover { background: rgba(16, 185, 129, 0.1) !important; border-color: var(--accent) !important; color: var(--accent-hover) !important; }
+    .btn-outline-danger { border: 1px solid var(--border) !important; color: var(--foreground) !important; background: transparent !important; }
+    .btn-outline-danger:hover { background: var(--destructive) !important; color: var(--destructive-foreground) !important; }
+    .text-primary { color: var(--accent) !important; }
+    .text-success { color: var(--success) !important; }
+    .text-danger { color: var(--error) !important; }
+    .border-success { border-color: var(--success) !important; }
+    .border-danger { border-color: var(--error) !important; }
+    .border-primary { border-color: var(--primary) !important; }
+    .bg-success.bg-opacity-10 { background: rgba(16, 185, 129, 0.15) !important; }
+    .bg-danger.bg-opacity-10 { background: rgba(248, 113, 113, 0.15) !important; }
+    .bg-primary.bg-opacity-10 { background: rgba(16, 185, 129, 0.12) !important; }
+    .badge.bg-success { background: var(--success) !important; color: var(--primary-foreground) !important; }
+    .badge.bg-danger { background: var(--error) !important; color: var(--destructive-foreground) !important; }
+    .badge.bg-primary { background: var(--primary) !important; color: var(--primary-foreground) !important; }
     [data-theme="dark"] .btn-close { filter: invert(1); opacity: 0.8; }
     @media (prefers-color-scheme: dark) { [data-theme="system"] .btn-close { filter: invert(1); opacity: 0.8; } }
 
-    .loading { color: var(--text-secondary); }
+    .loading { color: var(--muted-foreground); }
+    .spinner-border { color: var(--foreground) !important; }
 
     .toast {
       position: fixed;
@@ -349,15 +390,15 @@
       padding-left: 0.5rem;
     }
     .ai-analysis-prose li { margin-bottom: 0.4rem; }
-    .ai-analysis-prose strong { font-weight: 600; color: var(--accent-muted); }
+    .ai-analysis-prose strong { font-weight: 600; color: var(--accent); }
     .ai-analysis-prose hr { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
 
     /* Chat with AI */
     .chat-with-ai { max-height: 420px; display: flex; flex-direction: column; }
     .chat-messages { flex: 1; overflow-y: auto; padding: 1rem; min-height: 200px; max-height: 300px; }
     .chat-msg { margin-bottom: 1rem; padding: 0.6rem 0.9rem; border-radius: 10px; max-width: 90%; }
-    .chat-msg.user { background: rgba(59, 130, 246, 0.2); margin-left: auto; border-bottom-right-radius: 4px; }
-    .chat-msg.assistant { background: var(--bg-secondary); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .chat-msg.user { background: rgba(16, 185, 129, 0.15); margin-left: auto; border: 1px solid var(--border); border-bottom-right-radius: 0.25rem; }
+    .chat-msg.assistant { background: var(--secondary); border: 1px solid var(--border); border-bottom-left-radius: 0.25rem; }
     .chat-msg.chat-waiting .msg-body { color: var(--text-secondary) !important; }
     .chat-msg .msg-time { font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.25rem; }
     .chat-msg .msg-body { font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
@@ -388,17 +429,17 @@
     }
 
     .debug-header:hover {
-      background: rgba(59, 130, 246, 0.12) !important;
+      background: var(--muted) !important;
     }
 
     .debug-title {
       font-size: 0.9rem;
       font-weight: 600;
-      color: var(--text-primary) !important;
+      color: var(--foreground) !important;
     }
 
     .debug-toggle {
-      color: var(--accent-muted);
+      color: var(--muted-foreground);
       font-size: 0.8rem;
     }
 
@@ -448,7 +489,7 @@
 
     .debug-step.success .debug-step-icon { color: var(--success); }
     .debug-step.error .debug-step-icon { color: var(--error); }
-    .debug-step.pending .debug-step-icon { color: var(--text-secondary); }
+    .debug-step.pending .debug-step-icon { color: var(--muted-foreground); }
     .debug-step.active .debug-step-icon { color: var(--accent); }
 
     .debug-step-detail {
@@ -472,7 +513,7 @@
     }
 
     .table-section-title.sensitive {
-      color: #f59e0b;
+      color: var(--error);
     }
 
     .table-section-title.sensitive::before {
@@ -527,6 +568,7 @@
     }
     #aiApiKeyModal .modal-body a {
       color: var(--accent);
+      text-decoration: underline;
     }
     #aiApiKeyModal .modal-body a:hover {
       color: var(--accent-hover);
@@ -559,10 +601,9 @@
       left: 0;
       right: 0;
       z-index: 100;
-      background: var(--bg-card);
-      color: var(--text-primary) !important;
+      background: var(--card);
+      color: var(--foreground) !important;
       border-top: 1px solid var(--border);
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
     }
     body { padding-bottom: 52px; }
   </style>
@@ -572,7 +613,7 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
       <header class="text-center text-lg-start flex-grow-1">
         <h1 class="h3 mb-1 fw-bold">Bank Statement Analyzer</h1>
-        <p class="text-muted small mb-0">Upload PDF • Unlock • Copy to Excel or Google Sheets</p>
+        <p class="text-muted small mb-0">Upload PDF or Excel • Unlock • Copy to Excel or Google Sheets</p>
       </header>
       <div class="btn-group btn-group-sm mt-2 mt-lg-0" role="group" id="themeToggle">
         <input type="radio" class="btn-check" name="theme" id="themeDark" value="dark" autocomplete="off" checked>
@@ -588,9 +629,9 @@
       <div class="card-body p-4">
         <div class="upload-zone rounded-3 py-5 px-4" id="uploadZone">
           <i class="bi bi-file-earmark-pdf display-4 text-primary opacity-75 d-block mb-2"></i>
-          <p class="mb-1">Drag & drop your bank statement PDF here, or <strong>click to browse</strong></p>
+          <p class="mb-1">Drag & drop your bank statement <strong>PDF or Excel (.xls, .xlsx)</strong> here, or <strong>click to browse</strong></p>
           <p class="file-name small text-primary fw-medium mb-0" id="fileName"></p>
-          <input type="file" id="fileInput" accept=".pdf">
+          <input type="file" id="fileInput" accept=".pdf,.xls,.xlsx,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
         </div>
 
         <div class="password-section mt-4 d-none" id="passwordSection">
@@ -628,6 +669,7 @@
             <label class="small mb-0" for="geminiModelSelect">Model:</label>
             <select class="form-select form-select-sm" id="geminiModelSelect" style="width: auto; max-width: 220px;">
               <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash (default)</option>
+              <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
               <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
               <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
               <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
@@ -652,6 +694,7 @@
             </ul>
           </div>
           <button class="btn btn-outline-primary btn-sm" id="summaryBtn" disabled><i class="bi bi-graph-up me-1"></i>Summary & Charts</button>
+          <button class="btn btn-outline-info btn-sm" id="categorizeWithAIBtn" disabled title="Use AI to categorize transactions (Blinkit, UPI, Amazon, etc.)"><i class="bi bi-tags me-1"></i>Categorize with AI</button>
           <button class="btn btn-outline-info btn-sm" id="analyseWithAIBtn" disabled title="Get AI-powered analysis from Gemini"><i class="bi bi-robot me-1"></i>Analyse with AI</button>
           <button class="btn btn-outline-info btn-sm" id="chatWithAIBtn" disabled title="Ask questions about your statement"><i class="bi bi-chat-dots me-1"></i>Chat with AI</button>
           <button class="btn btn-outline-secondary btn-sm" id="downloadUnlockedPdfBtn" disabled title="Save unlocked PDF without password"><i class="bi bi-unlock-fill me-1"></i>Download Unlocked PDF</button>
@@ -661,8 +704,11 @@
 
       <!-- Table 1: Personal Info (sensitive) -->
       <div class="table-section personal-info-table mb-4 d-none" id="personalInfoSection">
-        <h3 class="h6 fw-semibold mb-2 table-section-title sensitive"><i class="bi bi-shield-exclamation me-2"></i>Account Holder Information (Sensitive)</h3>
-        <div class="table-wrapper">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h3 class="h6 fw-semibold mb-0 table-section-title sensitive"><i class="bi bi-shield-exclamation me-2"></i>Account Holder Information (Sensitive)</h3>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="personalInfoToggle" title="Show/hide details"><i class="bi bi-eye" id="personalInfoToggleIcon"></i></button>
+        </div>
+        <div class="table-wrapper" id="personalInfoTableWrapper">
           <table id="personalInfoTable">
             <thead id="personalInfoHead"></thead>
             <tbody id="personalInfoBody"></tbody>
@@ -689,13 +735,13 @@
       <div class="card border mt-4 d-none" id="summarySection">
         <div class="card-header d-flex justify-content-between align-items-center">
           <div>
-            <h5 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Financial Summary & Analytics</h5>
-            <small class="text-muted" id="summaryDateRange"></small>
+            <h5 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Financial Summary & Analytics <span class="badge bg-info ms-2 d-none" id="aiCategorizedBadge">AI categorized</span></h5>
+            <small class="text-muted d-block mt-0" id="summaryDateRange"></small>
           </div>
           <button type="button" class="btn-close" id="summaryClose" aria-label="Close"></button>
         </div>
         <div class="card-body">
-          <p class="text-muted small mb-3"><strong>Credit</strong> = money in (income, deposits). <strong>Debit</strong> = money out (expenses, withdrawals). Transactions are auto-categorized by narration keywords.</p>
+          <p class="text-muted small mb-3"><strong>Credit</strong> = money in. <strong>Debit</strong> = money out. Use <strong>Categorize with AI</strong> to improve category accuracy (Blinkit, UPI, Amazon, etc.).</p>
           <ul class="nav nav-tabs mb-3" id="summaryTabs">
             <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#overviewTab">Overview</a></li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#chartsTab">Charts</a></li>
@@ -711,6 +757,19 @@
               <div id="overviewCategoryBreakdown"></div>
             </div>
             <div class="tab-pane fade" id="chartsTab">
+              <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+                <span class="small text-muted">Chart period:</span>
+                <div class="btn-group btn-group-sm" role="group">
+                  <input type="radio" class="btn-check" name="chartPeriod" id="chartDaily" value="daily" autocomplete="off">
+                  <label class="btn btn-outline-secondary" for="chartDaily">Daily</label>
+                  <input type="radio" class="btn-check" name="chartPeriod" id="chartWeekly" value="weekly" autocomplete="off">
+                  <label class="btn btn-outline-secondary" for="chartWeekly">Weekly</label>
+                  <input type="radio" class="btn-check" name="chartPeriod" id="chartMonthly" value="monthly" checked autocomplete="off">
+                  <label class="btn btn-outline-secondary" for="chartMonthly">Monthly</label>
+                  <input type="radio" class="btn-check" name="chartPeriod" id="chartYearly" value="yearly" autocomplete="off">
+                  <label class="btn btn-outline-secondary" for="chartYearly">Yearly</label>
+                </div>
+              </div>
               <div class="row g-4">
                 <div class="col-md-6"><div class="chart-container"><canvas id="incomeExpenseChart"></canvas></div></div>
                 <div class="col-md-6"><div class="chart-container"><canvas id="categoryPieChart"></canvas></div></div>
@@ -811,7 +870,7 @@
   </div>
 
   <footer class="app-footer text-center small py-3">
-    v1.2.0 &middot; Last updated 18 Feb 2026, 12:00 PM &middot; Sudhir Kumar Thanna
+    v1.4.0 &middot; Last updated <span id="footerDatetime"></span> IST &middot; Sudhir Kumar Thanna
   </footer>
 
   <div class="app-toast alert alert-success shadow-lg" id="toast"><i class="bi bi-check-circle me-2"></i>Copied to clipboard!</div>
@@ -846,6 +905,7 @@
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script type="module">
     import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs';
     import { GoogleGenAI } from 'https://esm.sh/@google/genai@1';
@@ -880,6 +940,7 @@
     const summaryBtn = document.getElementById('summaryBtn');
     const summaryClose = document.getElementById('summaryClose');
     const analyseWithAIBtn = document.getElementById('analyseWithAIBtn');
+    const categorizeWithAIBtn = document.getElementById('categorizeWithAIBtn');
     const chatWithAIBtn = document.getElementById('chatWithAIBtn');
     const chatWithAISection = document.getElementById('chatWithAISection');
     const chatMessages = document.getElementById('chatMessages');
@@ -895,6 +956,7 @@
 
     let currentPdfFile = null;
     let currentPdfDoc = null;
+    let currentFileType = 'pdf';  // 'pdf' | 'excel'
     let analysisData = null;
     let chartInstances = {};
 
@@ -973,23 +1035,33 @@
       uploadZone.classList.remove('dragover');
     });
 
+    const EXCEL_TYPES = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+    const isExcelFile = (f) => EXCEL_TYPES.includes(f.type) || /\.(xls|xlsx)$/i.test(f.name || '');
+    const isPdfFile = (f) => f.type === 'application/pdf' || /\.pdf$/i.test(f.name || '');
+
     uploadZone.addEventListener('drop', (e) => {
       e.preventDefault();
       uploadZone.classList.remove('dragover');
       const file = e.dataTransfer.files[0];
-      if (file && file.type === 'application/pdf') handleFile(file);
+      if (file && (isPdfFile(file) || isExcelFile(file))) handleFile(file);
     });
 
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
-      if (file) handleFile(file);
+      if (file) {
+        if (isPdfFile(file) || isExcelFile(file)) handleFile(file);
+        else {
+          toast.classList.add('visible');
+          toast.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Please select a PDF or Excel (.xls, .xlsx) file.';
+          setTimeout(() => { toast.classList.remove('visible'); toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Copied to clipboard!'; }, 3000);
+        }
+      }
     });
 
     let pdfIsSecured = false;
 
     async function handleFile(file) {
       debugClear();
-      debugLog('PDF file selected', 'success', `${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
       currentPdfFile = file;
       fileName.textContent = file.name;
       uploadZone.classList.add('uploaded');
@@ -998,13 +1070,27 @@
       errorMsg.textContent = '';
       passwordInput.value = '';
       passwordInputWrapper.classList.add('d-none');
-      unlockBtn.disabled = true;
-      unlockBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Checking PDF...';
       resultsSection.classList.remove('visible');
       extractedData = [];
       personalInfoData = [];
       transactionData = [];
       currentPdfDoc = null;
+
+      if (isExcelFile(file)) {
+        currentFileType = 'excel';
+        debugLog('Excel file selected', 'success', `${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+        unlockBtn.innerHTML = '<i class="bi bi-eye me-2"></i>View';
+        unlockBtn.disabled = false;
+        pdfIsSecured = false;
+        downloadUnlockedPdfBtn.style.display = 'none';
+        return;
+      }
+
+      currentFileType = 'pdf';
+      downloadUnlockedPdfBtn.style.display = '';
+      debugLog('PDF file selected', 'success', `${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+      unlockBtn.disabled = true;
+      unlockBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Checking PDF...';
 
       try {
         const arrayBuffer = await file.arrayBuffer();
@@ -1040,6 +1126,7 @@
       unlockBtn.disabled = true;
       summaryBtn.disabled = true;
       analyseWithAIBtn.disabled = true;
+      categorizeWithAIBtn.disabled = true;
       chatWithAIBtn.disabled = true;
       downloadPdfBtn.disabled = true;
       downloadUnlockedPdfBtn.disabled = true;
@@ -1047,16 +1134,65 @@
       document.getElementById('aiAnalysisSection')?.classList.add('d-none');
       document.getElementById('chatWithAISection')?.classList.add('d-none');
       loadingState.style.display = 'block';
-      loadingState.innerHTML = '<div class="spinner-border text-primary mb-3" role="status"><span class="visually-hidden">Loading...</span></div><p class="mb-0">Extracting data from PDF...</p>';
+      const isExcel = currentFileType === 'excel';
+      loadingState.innerHTML = '<div class="spinner-border text-primary mb-3" role="status"><span class="visually-hidden">Loading...</span></div><p class="mb-0">Extracting data from ' + (isExcel ? 'Excel...' : 'PDF...') + '</p>';
       dataTable.style.display = 'none';
       personalInfoSection.classList.add('d-none');
       transactionsSection.classList.remove('d-none');
 
-      const password = passwordInput.value.trim();
-      const isProtected = pdfIsSecured && !!password;
-      debugLog('Extract initiated', 'active', isProtected ? 'Password provided for protected PDF' : 'Using unlocked PDF');
-
       try {
+        if (isExcel) {
+          debugLog('Extract initiated', 'active', 'Excel file');
+          const { personalInfo, transactions } = await extractFromExcel(currentPdfFile);
+          personalInfoData = personalInfo;
+          transactionData = transactions;
+          if (personalInfo.length > 0) {
+            debugLog('Table 1 identified: Account holder info (sensitive)', 'success', `${personalInfo.length} row(s)`);
+            renderPersonalInfoTable(personalInfo);
+            personalInfoSection.classList.remove('d-none');
+          } else {
+            debugLog('Table 1: No personal info block detected', 'pending');
+          }
+          if (transactions.length > 0) {
+            debugLog('Table 2 identified: Transaction list', 'success', `${transactions.length} row(s)`);
+            renderTable(transactions);
+            extractedData = transactionData;
+            analysisData = analyzeTransactions(transactionData);
+            summarySection.classList.remove('d-none');
+            summaryBtn.disabled = false;
+            analyseWithAIBtn.disabled = false;
+            categorizeWithAIBtn.disabled = false;
+            chatWithAIBtn.disabled = false;
+            downloadPdfBtn.disabled = false;
+            renderSummary();
+            summarySection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            loadingState.style.display = 'none';
+            dataTable.style.display = 'table';
+          } else {
+            summarySection.classList.add('d-none');
+            summaryBtn.disabled = true;
+            analyseWithAIBtn.disabled = true;
+            categorizeWithAIBtn.disabled = true;
+            chatWithAIBtn.disabled = true;
+            downloadPdfBtn.disabled = true;
+            extractedData = [];
+            debugLog('Table 2: No transaction data found', 'error');
+            loadingState.style.display = 'none';
+            loadingState.innerHTML = '<p>No transactions detected in this statement.</p>';
+          }
+          if (personalInfo.length === 0 && transactions.length === 0) {
+            errorMsg.textContent = 'No table data found in the Excel file. The format may not be supported.';
+            loadingState.innerHTML = '<p>No table data could be extracted from this Excel file.</p>';
+            loadingState.style.display = 'block';
+            debugLog('Extraction failed: No tables detected', 'error');
+          } else {
+            debugLog('All processing complete', 'success');
+          }
+        } else {
+          const password = passwordInput.value.trim();
+          const isProtected = pdfIsSecured && !!password;
+          debugLog('Extract initiated', 'active', isProtected ? 'Password provided for protected PDF' : 'Using unlocked PDF');
+
         let pdf = currentPdfDoc;
         if (!pdf || isProtected) {
           debugLog('Reading PDF file into memory...', 'active');
@@ -1110,6 +1246,7 @@
           summarySection.classList.remove('d-none');
           summaryBtn.disabled = false;
           analyseWithAIBtn.disabled = false;
+          categorizeWithAIBtn.disabled = false;
           chatWithAIBtn.disabled = false;
           downloadPdfBtn.disabled = false;
           renderSummary();
@@ -1120,6 +1257,7 @@
           summarySection.classList.add('d-none');
           summaryBtn.disabled = true;
           analyseWithAIBtn.disabled = true;
+          categorizeWithAIBtn.disabled = true;
           chatWithAIBtn.disabled = true;
           downloadPdfBtn.disabled = true;
           extractedData = [];
@@ -1136,13 +1274,15 @@
         } else {
           debugLog('All processing complete', 'success');
         }
+        }
       } catch (err) {
-        let message = 'Failed to open PDF. ';
-        if (err?.message === 'PASSWORD_REQUIRED') {
+        const isExcelErr = currentFileType === 'excel';
+        let message = isExcelErr ? 'Failed to open Excel file. ' : 'Failed to open PDF. ';
+        if (!isExcelErr && err?.message === 'PASSWORD_REQUIRED') {
           message = 'This PDF is password-protected. Enter the password above and click Unlock & View.';
           passwordInput.focus();
           debugLog('PDF is password-protected', 'error', 'Password required');
-        } else if (err?.message && /password|wrong|incorrect/i.test(err.message)) {
+        } else if (!isExcelErr && err?.message && /password|wrong|incorrect/i.test(err.message)) {
           message = 'Incorrect password. Please check and try again.';
           passwordInput.focus();
           debugLog('Wrong password', 'error', err.message);
@@ -1304,6 +1444,36 @@
       return { personalInfo: pi, transactions: tx };
     }
 
+    const EXCEL_PERSONAL_INFO_ROWS = 13;
+
+    async function extractFromExcel(file) {
+      const XLSX = window.XLSX;
+      if (!XLSX) throw new Error('SheetJS library not loaded. Please refresh the page.');
+      debugLog('Reading Excel file...', 'active');
+      const arrayBuffer = await file.arrayBuffer();
+      debugLog('File read complete', 'success', `${(arrayBuffer.byteLength / 1024).toFixed(1)} KB`);
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      if (!sheetName) throw new Error('No sheets found in Excel file');
+      debugLog(`Processing sheet: ${sheetName}`, 'active');
+      const sheet = workbook.Sheets[sheetName];
+      const jsonRows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+      const allRows = jsonRows.map(row => (Array.isArray(row) ? row : []).map(c => String(c ?? '').trim()));
+
+      // Lines 1-13 = personal info (display only, excluded from calculations)
+      // Line 16 = column headers (Value Date, Particulars, Dr/Cr, Withdrawals, Deposits, ...)
+      // Lines 17+ = transaction data
+      const EXCEL_HEADER_ROW = 16;
+      const personalInfo = allRows.slice(0, EXCEL_PERSONAL_INFO_ROWS).filter(r => r.length >= 1);
+      const transactionRows = allRows.slice(EXCEL_HEADER_ROW - 1);  // from line 16 (index 15)
+      const transactions = transactionRows.length > 0
+        ? [transactionRows[0], ...transactionRows.slice(1).filter(r => r.some(c => String(c).trim()))]
+        : [];
+
+      debugLog('Excel table split complete', 'success', `Personal info: ${personalInfo.length} rows (lines 1–13). Transactions: header at line ${EXCEL_HEADER_ROW}, ${Math.max(0, transactions.length - 1)} data rows.`);
+      return { personalInfo, transactions };
+    }
+
     function groupIntoRows(items, rowThreshold = 6) {
       if (items.length === 0) return [];
       const avgHeight = items.reduce((s, i) => s + (i.height || 5), 0) / items.length;
@@ -1326,6 +1496,10 @@
 
     function renderPersonalInfoTable(data) {
       if (!data || data.length === 0) return;
+      const wrapper = document.getElementById('personalInfoTableWrapper');
+      const icon = document.getElementById('personalInfoToggleIcon');
+      if (wrapper) wrapper.classList.remove('d-none');
+      if (icon) { icon.classList.remove('bi-eye-slash'); icon.classList.add('bi-eye'); icon.setAttribute('title', 'Hide details'); }
       const maxCols = Math.max(...data.map(r => r.length), 2);
       const headers = data[0] && data[0].length >= 1
         ? data[0].map((h, i) => h || `Field ${i + 1}`)
@@ -1379,57 +1553,105 @@
       return div.innerHTML;
     }
 
+    const INR_FORMAT = { minimumFractionDigits: 0, maximumFractionDigits: 2 };  // INR: rupees.paisa (1 rupee = 100 paisa)
+
+    // INR: 1 rupee = 100 paisa. Example: 100.12 = ₹100 and 12 paisa
     function parseAmount(str) {
-      if (!str || typeof str !== 'string') return 0;
-      const cleaned = String(str).replace(/,/g, '').replace(/\s/g, '');
+      if (str == null || str === '') return 0;
+      if (typeof str === 'number') return isNaN(str) ? 0 : Math.abs(str);
+      const s = String(str).trim();
+      if (/^[\s\-]*$/.test(s)) return 0;
+      const cleaned = s
+        .replace(/[₹Rs\s]|inr/gi, '')  // strip currency symbols, keep decimal (e.g. 100.12 = 100 rupees 12 paisa)
+        .replace(/,/g, '')
+        .replace(/^\-+/, '');
       const num = parseFloat(cleaned);
-      return isNaN(num) ? 0 : num;
+      return isNaN(num) ? 0 : Math.abs(num);
     }
 
     function detectColumnIndices(headers) {
-      const h = headers.map(x => String(x).toLowerCase());
-      let dateIdx = h.findIndex(x => /date|value\s*date|trans\s*date|value/i.test(x));
-      let debitIdx = h.findIndex(x => /debit|withdrawal|withdrawl|dr\.?|chq\/?dr|out|pay/i.test(x));
-      let creditIdx = h.findIndex(x => /credit|deposit|cr\.?|chq\/?cr|in|rec/i.test(x));
-      let narrationIdx = h.findIndex(x => /particulars|narration|description|remarks|details|transaction/i.test(x));
+      const h = headers.map(x => String(x || '').toLowerCase().trim());
+      const numCols = headers.length;
+      // Withdrawals column = expenses (money out). Excel/Indian bank: Withdrawals, Dr, Debit
+      const debitPatterns = [
+        /withdrawals?|withdrawl/i, /^dr\.?$/, /^d$/, /\bdr\b/, /debit/i,
+        /chq\.?\s*no\.?\s*\/?\s*dr|chq\/dr/i, /\bout\b/, /^(pay|payment)$/
+      ];
+      let debitIdx = h.findIndex(x => debitPatterns.some(p => p.test(x)));
+      // Deposits column = income (money in). Excel/Indian bank: Deposits, Cr, Credit
+      const creditPatterns = [
+        /deposits?/i, /^cr\.?$/, /^c$/, /\bcr\b/, /credit/i,
+        /chq\.?\s*no\.?\s*\/?\s*cr|chq\/cr/i, /received|receipt/i
+      ];
+      let creditIdx = h.findIndex(x => creditPatterns.some(p => p.test(x)));
+      let dateIdx = h.findIndex(x => /date|value\s*date|trans\s*date|value\s*dt/i.test(x));
+      // Particulars = description/narration for categorization
+      let narrationIdx = h.findIndex(x => /^particulars?$|narration|description|remarks|details|transaction/i.test(x));
+      let amountIdx = h.findIndex(x => /^amount$|^amt$|^amount\s*\(inr\)$/i.test(x));
+      // Dr/Cr column: indicates record type - Dr = debit/expense, Cr = credit/income (source of truth)
+      let drCrIdx = h.findIndex(x => /^dr\s*[\/\s]*cr$|^cr\s*[\/\s]*dr$|^d\s*[\/\s]*c$|^type$|^debit\s*[\/\s]*credit$/i.test(x));
       if (dateIdx < 0) dateIdx = 0;
       if (narrationIdx < 0) narrationIdx = Math.max(1, debitIdx >= 0 ? debitIdx - 1 : creditIdx >= 0 ? creditIdx - 1 : 1);
       if (debitIdx < 0 && creditIdx < 0) {
-        const numCols = headers.length;
+        if (amountIdx >= 0 && drCrIdx >= 0) {
+          return { dateIdx, debitIdx: -1, creditIdx: -1, narrationIdx, amountIdx, drCrIdx, layout: 'amount_drcr' };
+        }
         if (numCols >= 5) { debitIdx = numCols - 3; creditIdx = numCols - 2; }
         else if (numCols >= 4) { debitIdx = 2; creditIdx = 3; }
         else if (numCols >= 3) { debitIdx = 1; creditIdx = 2; }
       }
-      return { dateIdx, debitIdx, creditIdx, narrationIdx };
+      if (debitIdx >= 0 && creditIdx < 0 && debitIdx + 1 < numCols) creditIdx = debitIdx + 1;
+      else if (creditIdx >= 0 && debitIdx < 0 && creditIdx - 1 >= 0) debitIdx = creditIdx - 1;
+      else if (creditIdx >= 0 && debitIdx < 0 && creditIdx + 1 < numCols) debitIdx = creditIdx + 1;
+      if (debitIdx === creditIdx) creditIdx = debitIdx + 1 < numCols ? debitIdx + 1 : debitIdx - 1;
+      // Return drCrIdx when available for debit_credit layout - use Dr/Cr as source of truth for type
+      return { dateIdx, debitIdx, creditIdx, narrationIdx, amountIdx: -1, drCrIdx, layout: 'debit_credit' };
     }
 
+    const AI_CATEGORIES = ['Income', 'Investment', 'Rent & Housing', 'Groceries', 'Food & Dining', 'Utilities', 'Transport', 'E-commerce & Shopping', 'UPI & Transfers', 'Subscriptions', 'Insurance', 'Loan & EMI', 'Healthcare', 'Entertainment', 'Other'];
+
     const CATEGORY_RULES = [
-      { keywords: /salary|payroll|income|neft in|imps in|transfer in|refund|interest|cashback|reversal|credit/i, category: 'Income', type: 'income' },
-      { keywords: /sip|mutual fund|mf|stock|demat|nse|bse|invest|fd|recurring|ppf|lic/i, category: 'Investment', type: 'investment' },
-      { keywords: /rent|house|accommodation/i, category: 'Rent & Housing', type: 'expense' },
-      { keywords: /grocery|supermarket|bigbasket|swiggy|zomato|food|restaurant|cafe/i, category: 'Food & Dining', type: 'expense' },
-      { keywords: /electricity|gas|water|utility|broadband|wifi|mobile|recharge/i, category: 'Utilities', type: 'expense' },
-      { keywords: /fuel|petrol|diesel|uber|ola|rapido|transport/i, category: 'Transport', type: 'expense' },
-      { keywords: /amazon|flipkart|mysntra|shopping|retail/i, category: 'Shopping', type: 'expense' },
-      { keywords: /upi|paytm|gpay|phonepe|bharpay|transfer out|neft out|imps/i, category: 'Transfers & UPI', type: 'expense' },
-      { keywords: /subscription|netflix|spotify|prime|ott/i, category: 'Subscriptions', type: 'expense' },
-      { keywords: /insurance|premium/i, category: 'Insurance', type: 'expense' },
-      { keywords: /emi|loan|repayment/i, category: 'Loan & EMI', type: 'expense' },
-      { keywords: /medical|pharmacy|hospital|doctor/i, category: 'Healthcare', type: 'expense' },
+      { keywords: /salary|payroll|income|neft\s*in|imps\s*in|transfer\s*in|refund|interest|cashback|reversal|deposit/i, category: 'Income', types: ['income'] },
+      { keywords: /sip|mutual fund|mf|stock|demat|nse|bse|invest|fd|recurring|ppf|lic/i, category: 'Investment', types: ['investment', 'expense'] },
+      { keywords: /rent|house|accommodation/i, category: 'Rent & Housing', types: ['expense'] },
+      { keywords: /blinkit|bigbasket|grofers|dunzo|grocery|supermarket|groceries/i, category: 'Groceries', types: ['expense'] },
+      { keywords: /swiggy|zomato|food\s*panda|dominos|pizza|burger|mcdonald|kfc|restaurant|cafe|food|dining|dine/i, category: 'Food & Dining', types: ['expense'] },
+      { keywords: /electricity|gas|water|utility|broadband|wifi|mobile|recharge|jio|airtel|vi|bsnl/i, category: 'Utilities', types: ['expense'] },
+      { keywords: /fuel|petrol|diesel|uber|ola|rapido|transport|metro|irctc|flight|train|bus/i, category: 'Transport', types: ['expense'] },
+      { keywords: /amazon|flipkart|myntra|meesho|ajio|nykaa|snapdeal|shopping|ecommerce|e-commerce|retail|marketplace/i, category: 'E-commerce & Shopping', types: ['expense'] },
+      { keywords: /upi|paytm|gpay|phonepe|bharatpe|transfer\s*out|neft\s*out|imps\s*out|neft\s|imps\s|rtgs\s|vpa|@paytm|@okaxis|@ybl|@axl/i, category: 'UPI & Transfers', types: ['expense'] },
+      { keywords: /subscription|netflix|spotify|prime|ott|hotstar|disney|youtube|apple\s*one|google\s*one/i, category: 'Subscriptions', types: ['expense'] },
+      { keywords: /insurance|premium|term\s*plan|health\s*cover/i, category: 'Insurance', types: ['expense'] },
+      { keywords: /emi|loan|repayment|cc\s*payment|credit\s*card/i, category: 'Loan & EMI', types: ['expense'] },
+      { keywords: /medical|pharmacy|hospital|doctor|apollo|1mg|pharmeasy|health/i, category: 'Healthcare', types: ['expense'] },
+      { keywords: /movie|cinema|bookmyshow|entertainment|games|gaming|steam|playstation|xbox|ticket/i, category: 'Entertainment', types: ['expense'] },
     ];
 
-    function categorizeNarration(narration) {
+    function categorizeNarration(narration, txType) {
       const n = String(narration || '').toLowerCase();
       for (const r of CATEGORY_RULES) {
-        if (r.keywords.test(n)) return { category: r.category, type: r.type };
+        if (r.keywords.test(n)) {
+          const allowed = r.types || ['income', 'expense'];
+          if (allowed.includes(txType)) return { category: r.category };
+          if (txType === 'income') return { category: 'Income' };
+          if (txType === 'expense' && allowed.includes('expense')) return { category: r.category };
+          if (txType === 'expense') return { category: 'Other' };
+        }
       }
-      return { category: 'Other', type: 'expense' };
+      return { category: txType === 'income' ? 'Income' : 'Other' };
     }
 
     const MONTH_NAMES = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
 
     function parseDateFromCell(cell) {
-      const s = String(cell || '').trim();
+      if (cell == null || cell === '') return null;
+      if (cell instanceof Date && !isNaN(cell.getTime())) return cell;
+      // Excel serial date: number of days since 1900-01-01
+      if (typeof cell === 'number') {
+        const d = new Date((cell - 25569) * 86400 * 1000);
+        return isNaN(d.getTime()) ? null : d;
+      }
+      const s = String(cell).trim();
       const m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
       if (m) return new Date(parseInt(m[3]) < 100 ? 2000 + parseInt(m[3]) : parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]));
       const m2 = s.match(/(\d{1,2})[\/\-]([A-Za-z]{3})[\/\-](\d{2,4})/i);
@@ -1458,32 +1680,96 @@
       return start.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: '2-digit' }) + ' wk';
     }
 
+    function getDayKey(cell) {
+      const d = parseDateFromCell(cell);
+      if (!d) return 'Unknown';
+      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' });
+    }
+
+    function getYearKey(cell) {
+      const d = parseDateFromCell(cell);
+      if (!d) return 'Unknown';
+      return d.getFullYear().toString();
+    }
+
     function analyzeTransactions(transactionData) {
       if (!transactionData || transactionData.length < 2) return null;
       const headers = transactionData[0];
       const rows = transactionData.slice(1);
-      const { dateIdx, debitIdx, creditIdx, narrationIdx } = detectColumnIndices(headers);
+      const { dateIdx, debitIdx, creditIdx, narrationIdx, amountIdx, drCrIdx, layout } = detectColumnIndices(headers);
+      debugLog('Column detection', 'success',
+        `Headers: [${headers.map(h => `"${h}"`).join(', ')}] → Date:${dateIdx} Dr:${debitIdx} Cr:${creditIdx} Narration:${narrationIdx} Layout:${layout}`);
 
       const byCategory = {};
       const monthlyIncome = {};
       const monthlyExpense = {};
       const weeklyIncome = {};
       const weeklyExpense = {};
+      const dailyIncome = {};
+      const dailyExpense = {};
+      const yearlyIncome = {};
+      const yearlyExpense = {};
       let totalIncome = 0, totalExpense = 0;
       const parsed = [];
 
+      function isDr(val) {
+        const s = String(val || '').toLowerCase().trim();
+        return /^dr\.?$|^d$|^debit$/i.test(s) || /\bdr\b/.test(s) || s === 'dr';
+      }
+      function isCr(val) {
+        const s = String(val || '').toLowerCase().trim();
+        return /^cr\.?$|^c$|^credit$/i.test(s) || /\bcr\b/.test(s) || s === 'cr';
+      }
+
       for (const row of rows) {
-        const debit = debitIdx >= 0 ? parseAmount(row[debitIdx]) : 0;
-        const credit = creditIdx >= 0 ? parseAmount(row[creditIdx]) : 0;
+        let debit = 0, credit = 0, amount = 0, type = '';
+        if (layout === 'amount_drcr' && amountIdx >= 0 && drCrIdx >= 0) {
+          const amt = parseAmount(row[amountIdx]);
+          const drCr = row[drCrIdx];
+          const isDebit = isDr(drCr);
+          const isCredit = isCr(drCr);
+          if (amt > 0 && (isDebit || isCredit)) {
+            amount = amt;
+            type = isDebit ? 'expense' : 'income';
+            if (isDebit) { debit = amt; totalExpense += amt; } else { credit = amt; totalIncome += amt; }
+          } else if (amt > 0) {
+            amount = amt;
+            type = 'expense';
+            debit = amt;
+            totalExpense += amt;
+          }
+        } else {
+          debit = debitIdx >= 0 ? parseAmount(row[debitIdx]) : 0;
+          credit = creditIdx >= 0 ? parseAmount(row[creditIdx]) : 0;
+          if (drCrIdx >= 0) {
+            const drCr = row[drCrIdx];
+            if (isDr(drCr)) {
+              amount = debit > 0 ? debit : (credit > 0 ? credit : 0);
+              type = 'expense';
+              if (amount > 0) { debit = amount; totalExpense += amount; }
+            } else if (isCr(drCr)) {
+              amount = credit > 0 ? credit : (debit > 0 ? debit : 0);
+              type = 'income';
+              if (amount > 0) { credit = amount; totalIncome += amount; }
+            } else {
+              if (credit > 0 && debit <= 0) { amount = credit; type = 'income'; totalIncome += credit; }
+              else if (debit > 0 && credit <= 0) { amount = debit; type = 'expense'; totalExpense += debit; }
+              else if (credit > 0 && debit > 0) { amount = credit - debit; type = amount >= 0 ? 'income' : 'expense'; if (amount >= 0) totalIncome += amount; else totalExpense += Math.abs(amount); }
+            }
+          } else {
+            if (credit > 0 && debit <= 0) { amount = credit; type = 'income'; totalIncome += credit; }
+            else if (debit > 0 && credit <= 0) { amount = debit; type = 'expense'; totalExpense += debit; }
+            else if (credit > 0 && debit > 0) { amount = credit - debit; type = amount >= 0 ? 'income' : 'expense'; if (amount >= 0) totalIncome += amount; else totalExpense += Math.abs(amount); }
+          }
+        }
+        if (!type || amount <= 0) continue;
         const narration = narrationIdx >= 0 ? String(row[narrationIdx] || '') : '';
         const date = dateIdx >= 0 ? row[dateIdx] : '';
-        let amount = 0, type = '';
-        if (credit > 0 && debit <= 0) { amount = credit; type = 'income'; totalIncome += credit; }
-        else if (debit > 0 && credit <= 0) { amount = debit; type = 'expense'; totalExpense += debit; }
-        else if (credit > 0 && debit > 0) { amount = credit - debit; type = amount >= 0 ? 'income' : 'expense'; if (amount >= 0) totalIncome += amount; else totalExpense += Math.abs(amount); }
-        const { category } = categorizeNarration(narration);
+        const { category } = categorizeNarration(narration, type);
         const month = getMonthKey(date);
         const week = getWeekKey(date);
+        const day = getDayKey(date);
+        const year = getYearKey(date);
 
         if (!byCategory[category]) byCategory[category] = { income: 0, expense: 0, count: 0 };
         if (type === 'income') byCategory[category].income += amount;
@@ -1498,14 +1784,26 @@
           if (type === 'income') { weeklyIncome[week] = (weeklyIncome[week] || 0) + amount; }
           else { weeklyExpense[week] = (weeklyExpense[week] || 0) + amount; }
         }
+        if (day !== 'Unknown') {
+          if (type === 'income') { dailyIncome[day] = (dailyIncome[day] || 0) + amount; }
+          else { dailyExpense[day] = (dailyExpense[day] || 0) + amount; }
+        }
+        if (year !== 'Unknown') {
+          if (type === 'income') { yearlyIncome[year] = (yearlyIncome[year] || 0) + amount; }
+          else { yearlyExpense[year] = (yearlyExpense[year] || 0) + amount; }
+        }
 
-        parsed.push({ date, narration, debit, credit, amount, type, category, month, week });
+        parsed.push({ date, narration, debit, credit, amount, type, category, month, week, day, year });
       }
 
       const numMonths = Object.keys(monthlyIncome).length + Object.keys(monthlyExpense).length > 0
         ? new Set([...Object.keys(monthlyIncome), ...Object.keys(monthlyExpense)]).size : 1;
       const numWeeks = Object.keys(weeklyIncome).length + Object.keys(weeklyExpense).length > 0
         ? new Set([...Object.keys(weeklyIncome), ...Object.keys(weeklyExpense)]).size : 1;
+      const numDays = Object.keys(dailyIncome).length + Object.keys(dailyExpense).length > 0
+        ? new Set([...Object.keys(dailyIncome), ...Object.keys(dailyExpense)]).size : 1;
+      const numYears = Object.keys(yearlyIncome).length + Object.keys(yearlyExpense).length > 0
+        ? new Set([...Object.keys(yearlyIncome), ...Object.keys(yearlyExpense)]).size : 1;
 
       return {
         totalIncome,
@@ -1516,16 +1814,52 @@
         monthlyExpense,
         weeklyIncome,
         weeklyExpense,
+        dailyIncome,
+        dailyExpense,
+        yearlyIncome,
+        yearlyExpense,
         parsed,
         numMonths,
         numWeeks,
+        numDays,
+        numYears,
         counts: { income: parsed.filter(p => p.type === 'income').length, expense: parsed.filter(p => p.type === 'expense').length }
       };
+    }
+
+    function recomputeAggregatesFromParsed(parsed) {
+      const byCategory = {};
+      const monthlyIncome = {};
+      const monthlyExpense = {};
+      const weeklyIncome = {};
+      const weeklyExpense = {};
+      const dailyIncome = {};
+      const dailyExpense = {};
+      const yearlyIncome = {};
+      const yearlyExpense = {};
+      let totalIncome = 0, totalExpense = 0;
+      for (const p of parsed) {
+        if (p.type === 'income') totalIncome += p.amount; else totalExpense += p.amount;
+        if (!byCategory[p.category]) byCategory[p.category] = { income: 0, expense: 0, count: 0 };
+        if (p.type === 'income') byCategory[p.category].income += p.amount; else byCategory[p.category].expense += p.amount;
+        byCategory[p.category].count += 1;
+        if (p.month !== 'Unknown') { if (p.type === 'income') monthlyIncome[p.month] = (monthlyIncome[p.month] || 0) + p.amount; else monthlyExpense[p.month] = (monthlyExpense[p.month] || 0) + p.amount; }
+        if (p.week !== 'Unknown') { if (p.type === 'income') weeklyIncome[p.week] = (weeklyIncome[p.week] || 0) + p.amount; else weeklyExpense[p.week] = (weeklyExpense[p.week] || 0) + p.amount; }
+        if (p.day !== 'Unknown') { if (p.type === 'income') dailyIncome[p.day] = (dailyIncome[p.day] || 0) + p.amount; else dailyExpense[p.day] = (dailyExpense[p.day] || 0) + p.amount; }
+        if (p.year !== 'Unknown') { if (p.type === 'income') yearlyIncome[p.year] = (yearlyIncome[p.year] || 0) + p.amount; else yearlyExpense[p.year] = (yearlyExpense[p.year] || 0) + p.amount; }
+      }
+      const numMonths = (() => { const m = new Set([...Object.keys(monthlyIncome), ...Object.keys(monthlyExpense)]); return m.size || 1; })();
+      const numWeeks = (() => { const w = new Set([...Object.keys(weeklyIncome), ...Object.keys(weeklyExpense)]); return w.size || 1; })();
+      const numDays = (() => { const d = new Set([...Object.keys(dailyIncome), ...Object.keys(dailyExpense)]); return d.size || 1; })();
+      const numYears = (() => { const y = new Set([...Object.keys(yearlyIncome), ...Object.keys(yearlyExpense)]); return y.size || 1; })();
+      return { ...analysisData, byCategory, monthlyIncome, monthlyExpense, weeklyIncome, weeklyExpense, dailyIncome, dailyExpense, yearlyIncome, yearlyExpense, totalIncome, totalExpense, netFlow: totalIncome - totalExpense, numMonths, numWeeks, numDays, numYears, counts: { income: parsed.filter(x => x.type === 'income').length, expense: parsed.filter(x => x.type === 'expense').length } };
     }
 
     function renderSummary() {
       if (!analysisData) return;
       const d = analysisData;
+      const aiBadge = document.getElementById('aiCategorizedBadge');
+      if (aiBadge) aiBadge.classList.toggle('d-none', !d.aiCategorized);
 
       const dates = d.parsed.map(p => p.date).filter(Boolean);
       const dateRangeEl = document.getElementById('summaryDateRange');
@@ -1536,7 +1870,7 @@
           <div class="card summary-card border-success bg-success bg-opacity-10">
             <div class="card-body py-3">
               <small class="text-muted">Total Income</small>
-              <div class="h4 text-success mb-0">₹${d.totalIncome.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+              <div class="h4 text-success mb-0">₹${d.totalIncome.toLocaleString('en-IN', INR_FORMAT)}</div>
             </div>
           </div>
         </div>
@@ -1544,7 +1878,7 @@
           <div class="card summary-card border-danger bg-danger bg-opacity-10">
             <div class="card-body py-3">
               <small class="text-muted">Total Expenses</small>
-              <div class="h4 text-danger mb-0">₹${d.totalExpense.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+              <div class="h4 text-danger mb-0">₹${d.totalExpense.toLocaleString('en-IN', INR_FORMAT)}</div>
             </div>
           </div>
         </div>
@@ -1552,7 +1886,7 @@
           <div class="card summary-card border-primary bg-primary bg-opacity-10">
             <div class="card-body py-3">
               <small class="text-muted">Net Flow</small>
-              <div class="h4 mb-0 ${d.netFlow >= 0 ? 'text-success' : 'text-danger'}">₹${d.netFlow.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+              <div class="h4 mb-0 ${d.netFlow >= 0 ? 'text-success' : 'text-danger'}">₹${d.netFlow.toLocaleString('en-IN', INR_FORMAT)}</div>
             </div>
           </div>
         </div>
@@ -1572,16 +1906,24 @@
       const nw = d.numWeeks || 1;
       const avgWeeklyIncome = d.totalIncome / nw;
       const avgWeeklyExpense = d.totalExpense / nw;
+      const nd = d.numDays || 1;
+      const avgDailyIncome = d.totalIncome / nd;
+      const avgDailyExpense = d.totalExpense / nd;
       const yearlyIncomeProj = avgMonthlyIncome * 12;
       const yearlyExpenseProj = avgMonthlyExpense * 12;
+      const yearlyIncomeActual = d.yearlyIncome ? Object.values(d.yearlyIncome).reduce((a, b) => a + b, 0) : 0;
+      const yearlyExpenseActual = d.yearlyExpense ? Object.values(d.yearlyExpense).reduce((a, b) => a + b, 0) : 0;
+      const expenseToIncomePct = d.totalIncome > 0 ? (d.totalExpense / d.totalIncome) * 100 : 0;
+      const savingsRate = d.totalIncome > 0 ? Math.max(-100, ((d.totalIncome - d.totalExpense) / d.totalIncome) * 100) : 0;
+      const topExpenseCat = Object.entries(d.byCategory).filter(([, v]) => v.expense > 0).sort((a, b) => b[1].expense - a[1].expense)[0];
 
       document.getElementById('summaryStats').innerHTML = `
         <div class="col-12"><h6 class="fw-semibold mb-2"><i class="bi bi-calculator me-2"></i>Sum, Average & Projections</h6></div>
         <div class="col-6 col-md-4 col-lg-2">
           <div class="card summary-card border-opacity-50">
             <div class="card-body py-2">
-              <small class="text-muted">Avg/Month</small>
-              <div class="small mb-0"><span class="text-success">₹${avgMonthlyIncome.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span> in · <span class="text-danger">₹${avgMonthlyExpense.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span> out</div>
+              <small class="text-muted">Avg/Day</small>
+              <div class="small mb-0"><span class="text-success">₹${avgDailyIncome.toLocaleString('en-IN', INR_FORMAT)}</span> in · <span class="text-danger">₹${avgDailyExpense.toLocaleString('en-IN', INR_FORMAT)}</span> out</div>
             </div>
           </div>
         </div>
@@ -1589,15 +1931,39 @@
           <div class="card summary-card border-opacity-50">
             <div class="card-body py-2">
               <small class="text-muted">Avg/Week</small>
-              <div class="small mb-0"><span class="text-success">₹${avgWeeklyIncome.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span> · <span class="text-danger">₹${avgWeeklyExpense.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span></div>
+              <div class="small mb-0"><span class="text-success">₹${avgWeeklyIncome.toLocaleString('en-IN', INR_FORMAT)}</span> · <span class="text-danger">₹${avgWeeklyExpense.toLocaleString('en-IN', INR_FORMAT)}</span></div>
             </div>
           </div>
         </div>
         <div class="col-6 col-md-4 col-lg-2">
           <div class="card summary-card border-opacity-50">
             <div class="card-body py-2">
-              <small class="text-muted">Yearly (projected)</small>
-              <div class="small mb-0"><span class="text-success">₹${yearlyIncomeProj.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span> · <span class="text-danger">₹${yearlyExpenseProj.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span></div>
+              <small class="text-muted">Avg/Month</small>
+              <div class="small mb-0"><span class="text-success">₹${avgMonthlyIncome.toLocaleString('en-IN', INR_FORMAT)}</span> in · <span class="text-danger">₹${avgMonthlyExpense.toLocaleString('en-IN', INR_FORMAT)}</span> out</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card summary-card border-opacity-50">
+            <div class="card-body py-2">
+              <small class="text-muted">Yearly</small>
+              <div class="small mb-0"><span class="text-success">₹${(yearlyIncomeActual || yearlyIncomeProj).toLocaleString('en-IN', INR_FORMAT)}</span> · <span class="text-danger">₹${(yearlyExpenseActual || yearlyExpenseProj).toLocaleString('en-IN', INR_FORMAT)}</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card summary-card border-opacity-50">
+            <div class="card-body py-2">
+              <small class="text-muted">Expense/Income</small>
+              <div class="small mb-0"><span class="${expenseToIncomePct > 100 ? 'text-danger' : 'text-muted'}">${expenseToIncomePct.toFixed(1)}%</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card summary-card border-opacity-50">
+            <div class="card-body py-2">
+              <small class="text-muted">Savings rate</small>
+              <div class="small mb-0"><span class="${savingsRate >= 0 ? 'text-success' : 'text-danger'}">${savingsRate.toFixed(1)}%</span></div>
             </div>
           </div>
         </div>
@@ -1605,7 +1971,7 @@
           <div class="card summary-card border-opacity-50">
             <div class="card-body py-2">
               <small class="text-muted">Avg per TX (Income)</small>
-              <div class="small text-success mb-0">₹${d.counts.income > 0 ? (d.totalIncome / d.counts.income).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</div>
+              <div class="small text-success mb-0">₹${d.counts.income > 0 ? (d.totalIncome / d.counts.income).toLocaleString('en-IN', INR_FORMAT) : '0'}</div>
             </div>
           </div>
         </div>
@@ -1613,10 +1979,11 @@
           <div class="card summary-card border-opacity-50">
             <div class="card-body py-2">
               <small class="text-muted">Avg per TX (Expense)</small>
-              <div class="small text-danger mb-0">₹${d.counts.expense > 0 ? (d.totalExpense / d.counts.expense).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</div>
+              <div class="small text-danger mb-0">₹${d.counts.expense > 0 ? (d.totalExpense / d.counts.expense).toLocaleString('en-IN', INR_FORMAT) : '0'}</div>
             </div>
           </div>
         </div>
+        ${topExpenseCat ? `<div class="col-12"><div class="card summary-card border-danger border-opacity-50"><div class="card-body py-2"><small class="text-muted">Top expense category</small><div class="small mb-0"><strong>${topExpenseCat[0]}</strong> — ₹${topExpenseCat[1].expense.toLocaleString('en-IN', INR_FORMAT)}</div></div></div></div>` : ''}
       `;
 
       document.getElementById('summaryCounts').innerHTML = `
@@ -1625,14 +1992,16 @@
       `;
 
       const catEntries = Object.entries(d.byCategory).filter(([_, v]) => v.income + v.expense !== 0).sort((a, b) => (b[1].income + b[1].expense) - (a[1].income + a[1].expense));
+      const topExpense = catEntries.filter(([, v]) => v.expense > 0).sort((a, b) => b[1].expense - a[1].expense)[0];
       const catHtml = catEntries.map(([name, v]) => {
         const tot = v.income + v.expense;
         const pct = d.totalIncome + d.totalExpense > 0 ? (tot / (d.totalIncome + d.totalExpense) * 100).toFixed(1) : 0;
         const badgeClass = v.income > v.expense ? 'bg-success' : name === 'Investment' ? 'bg-primary' : 'bg-danger';
+        const detail = v.income > 0 && v.expense > 0 ? ` <small class="text-muted">in ₹${v.income.toLocaleString('en-IN', INR_FORMAT)} · out ₹${v.expense.toLocaleString('en-IN', INR_FORMAT)}</small>` : '';
         return `
           <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-            <span class="category-badge badge ${badgeClass} me-2">${name}</span>
-            <span>₹${tot.toLocaleString('en-IN')} (${pct}%)</span>
+            <span class="category-badge badge ${badgeClass} me-2">${name}${topExpense && topExpense[0] === name ? ' ↑' : ''}</span>
+            <span>₹${tot.toLocaleString('en-IN', INR_FORMAT)} (${pct}%)${detail}</span>
           </div>
         `;
       }).join('') || '<p class="text-muted">No categorized data</p>';
@@ -1642,68 +2011,108 @@
       const overviewCat = document.getElementById('overviewCategoryBreakdown');
       if (overviewCat) overviewCat.innerHTML = catHtml;
 
-      updateCharts();
+      const chartsTab = document.querySelector('#summaryTabs a[href="#chartsTab"]');
+      if (chartsTab?.classList.contains('active')) updateCharts();
     }
 
     function getChartColors() {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || (document.documentElement.getAttribute('data-theme') === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
       return {
-        bg: isDark ? 'rgba(30, 42, 58, 0.8)' : 'rgba(255,255,255,0.9)',
-        grid: isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(0,0,0,0.1)',
-        text: isDark ? '#94a3b8' : '#64748b'
+        bg: isDark ? 'rgba(30, 41, 59, 0.9)' : 'rgba(248, 250, 252, 0.9)',
+        grid: isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(15, 23, 42, 0.08)',
+        text: isDark ? '#94a3b8' : '#64748b',
+        income: 'rgba(16, 185, 129, 0.8)',
+        expense: 'rgba(248, 113, 113, 0.7)',
+        palette: isDark ? ['#10b981', '#f87171', '#34d399', '#fda4af', '#6ee7b7', '#fb7185', '#5eead4', '#f472b6'] : ['#059669', '#dc2626', '#10b981', '#f87171', '#34d399', '#ef4444', '#2dd4bf', '#ec4899']
       };
+    }
+
+    function sortPeriodKeys(keys, period) {
+      if (keys.length === 0) return keys;
+      const parseForSort = (k) => {
+        if (period === 'yearly') return parseInt(k) || 0;
+        if (period === 'monthly') {
+          const m = k.match(/([A-Za-z]{3})\s*'?(\d{2})/i);
+          if (m) return (parseInt(m[2]) < 50 ? 2000 : 1900) + parseInt(m[2]) + MONTH_NAMES.indexOf(m[1].toLowerCase()) / 12;
+          return 0;
+        }
+        if (period === 'weekly') {
+          const m = k.match(/([A-Za-z]{3})\s+(\d{1,2})\s*'?(\d{2})/i);
+          if (m) return (parseInt(m[3]) < 50 ? 2000 : 1900) + parseInt(m[3]) + MONTH_NAMES.indexOf(m[1].toLowerCase()) / 12 + parseInt(m[2]) / 365;
+          return 0;
+        }
+        if (period === 'daily') {
+          const m = k.match(/(\d{1,2})[\s\/\-]+([A-Za-z]{3})[\s\/\-]*'?(\d{2})?/i);
+          if (m) return (parseInt(m[3] || '25') < 50 ? 2000 : 1900) + parseInt(m[3] || '25') + MONTH_NAMES.indexOf((m[2] || '').toLowerCase().slice(0, 3)) / 12 + parseInt(m[1]) / 365;
+          const m2 = k.match(/([A-Za-z]{3})[\s\/\-]+(\d{1,2})[\s\/\-]*'?(\d{2})?/i);
+          if (m2) return (parseInt(m2[3] || '25') < 50 ? 2000 : 1900) + parseInt(m2[3] || '25') + MONTH_NAMES.indexOf((m2[1] || '').toLowerCase().slice(0, 3)) / 12 + parseInt(m2[2]) / 365;
+          return 0;
+        }
+        return 0;
+      };
+      return [...keys].sort((a, b) => parseForSort(a) - parseForSort(b));
     }
 
     function updateCharts() {
       if (!analysisData) return;
       const d = analysisData;
       const colors = getChartColors();
+      const period = document.querySelector('input[name="chartPeriod"]:checked')?.value || 'monthly';
 
       Object.values(chartInstances).forEach(c => { if (c) c.destroy(); });
       chartInstances = {};
 
-      const months = [...new Set([...Object.keys(d.monthlyIncome), ...Object.keys(d.monthlyExpense)])].sort();
+      let incomeData = d.monthlyIncome, expenseData = d.monthlyExpense;
+      if (period === 'daily') { incomeData = d.dailyIncome || {}; expenseData = d.dailyExpense || {}; }
+      else if (period === 'weekly') { incomeData = d.weeklyIncome || {}; expenseData = d.weeklyExpense || {}; }
+      else if (period === 'yearly') { incomeData = d.yearlyIncome || {}; expenseData = d.yearlyExpense || {}; }
+
+      let labels = [...new Set([...Object.keys(incomeData), ...Object.keys(expenseData)])];
+      labels = sortPeriodKeys(labels, period);
+      if (labels.length === 0) labels = ['Period'];
+
       const ctx1 = document.getElementById('incomeExpenseChart');
       if (ctx1) {
         chartInstances.incomeExpense = new Chart(ctx1, {
           type: 'bar',
           data: {
-            labels: months,
+            labels,
             datasets: [
-              { label: 'Income', data: months.map(m => d.monthlyIncome[m] || 0), backgroundColor: 'rgba(34, 197, 94, 0.7)' },
-              { label: 'Expenses', data: months.map(m => d.monthlyExpense[m] || 0), backgroundColor: 'rgba(239, 68, 68, 0.7)' }
+              { label: 'Income (Cr)', data: labels.map(l => incomeData[l] || 0), backgroundColor: colors.income },
+              { label: 'Expenses (Dr)', data: labels.map(l => expenseData[l] || 0), backgroundColor: colors.expense }
             ]
           },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: colors.text } } }, scales: { x: { ticks: { color: colors.text }, grid: { color: colors.grid } }, y: { ticks: { color: colors.text }, grid: { color: colors.grid } } } }
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: colors.text } } }, scales: { x: { ticks: { color: colors.text, maxRotation: 45 }, grid: { color: colors.grid } }, y: { ticks: { color: colors.text }, grid: { color: colors.grid } } } }
         });
       }
 
       const catEntries = Object.entries(d.byCategory).filter(([_, v]) => v.expense > 0).sort((a, b) => b[1].expense - a[1].expense).slice(0, 8);
       const ctx2 = document.getElementById('categoryPieChart');
-      if (ctx2 && catEntries.length > 0) {
-        const palette = ['#3b82f6', '#ef4444', '#22c55e', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+      if (ctx2 && (catEntries.length > 0 || Object.values(d.byCategory).some(v => v.income + v.expense > 0))) {
+        const pieEntries = catEntries.length > 0 ? catEntries : Object.entries(d.byCategory).filter(([_, v]) => v.income + v.expense > 0).sort((a, b) => (b[1].income + b[1].expense) - (a[1].income + a[1].expense)).slice(0, 8);
+        const palette = colors.palette;
         chartInstances.categoryPie = new Chart(ctx2, {
           type: 'doughnut',
           data: {
-            labels: catEntries.map(([n]) => n),
-            datasets: [{ data: catEntries.map(([, v]) => v.expense), backgroundColor: palette }]
+            labels: pieEntries.map(([n]) => n),
+            datasets: [{ data: pieEntries.map(([, v]) => v.expense || v.income), backgroundColor: palette }]
           },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: colors.text } } } }
         });
       }
 
       const ctx3 = document.getElementById('monthlyTrendChart');
-      if (ctx3 && months.length > 0) {
+      if (ctx3 && labels.length > 0) {
         chartInstances.monthlyTrend = new Chart(ctx3, {
           type: 'line',
           data: {
-            labels: months,
+            labels,
             datasets: [
-              { label: 'Income', data: months.map(m => d.monthlyIncome[m] || 0), borderColor: '#22c55e', fill: false, tension: 0.3 },
-              { label: 'Expenses', data: months.map(m => d.monthlyExpense[m] || 0), borderColor: '#ef4444', fill: false, tension: 0.3 }
+              { label: 'Income (Cr)', data: labels.map(l => incomeData[l] || 0), borderColor: colors.income, fill: false, tension: 0.3 },
+              { label: 'Expenses (Dr)', data: labels.map(l => expenseData[l] || 0), borderColor: colors.expense, fill: false, tension: 0.3 }
             ]
           },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: colors.text } } }, scales: { x: { ticks: { color: colors.text }, grid: { color: colors.grid } }, y: { ticks: { color: colors.text }, grid: { color: colors.grid } } } }
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: colors.text } } }, scales: { x: { ticks: { color: colors.text, maxRotation: 45 }, grid: { color: colors.grid } }, y: { ticks: { color: colors.text }, grid: { color: colors.grid } } } }
         });
       }
     }
@@ -1715,10 +2124,26 @@
     });
     document.querySelectorAll('#summaryTabs a[data-bs-toggle="tab"]').forEach(el => {
       el.addEventListener('shown.bs.tab', (e) => {
-        if (e.target.getAttribute('href') === '#chartsTab') Object.values(chartInstances).forEach(c => { if (c) c.resize(); });
+        if (e.target.getAttribute('href') === '#chartsTab') {
+          setTimeout(() => { updateCharts(); Object.values(chartInstances).forEach(c => { if (c) c.resize(); }); }, 50);
+        }
       });
     });
+    document.querySelectorAll('input[name="chartPeriod"]').forEach(el => {
+      el.addEventListener('change', () => { updateCharts(); Object.values(chartInstances).forEach(c => { if (c) c.resize(); }); });
+    });
     summaryClose.addEventListener('click', () => summarySection.classList.add('d-none'));
+
+    document.getElementById('personalInfoToggle')?.addEventListener('click', () => {
+      const wrapper = document.getElementById('personalInfoTableWrapper');
+      const icon = document.getElementById('personalInfoToggleIcon');
+      if (!wrapper || !icon) return;
+      const hidden = wrapper.classList.contains('d-none');
+      wrapper.classList.toggle('d-none');
+      icon.classList.toggle('bi-eye', hidden);
+      icon.classList.toggle('bi-eye-slash', !hidden);
+      icon.setAttribute('title', hidden ? 'Hide details' : 'Show details');
+    });
 
     const GEMINI_STORAGE_KEY = 'gemini-api-key';
     const GEMINI_MODEL_STORAGE_KEY = 'gemini-model';
@@ -1787,7 +2212,7 @@
     }
 
     function updateAiLogs(request, response, error) {
-      const time = new Date().toLocaleTimeString();
+      const time = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
       let html = `<div class="log-section"><div class="log-section-title">[${time}] REQUEST (sent to Gemini)</div><div>${escapeHtml(request || '').replace(/\n/g, '<br>')}</div></div>`;
       if (error) {
         html += `<div class="log-section"><div class="log-section-title">ERROR</div><div class="text-danger">${escapeHtml(error)}</div></div>`;
@@ -1799,7 +2224,7 @@
     }
 
     function appendAiLogs(label, request, response, error) {
-      const time = new Date().toLocaleTimeString();
+      const time = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
       const placeholder = aiLogsContent.querySelector('.text-muted.small');
       if (placeholder) aiLogsContent.innerHTML = '';
       let html = `<div class="log-section"><div class="log-section-title">[${time}] ${escapeHtml(label)} — REQUEST</div><div>${escapeHtml(request || '').replace(/\n/g, '<br>')}</div></div>`;
@@ -1813,7 +2238,7 @@
     }
 
     function appendAiLogResponse(label, response, error) {
-      const time = new Date().toLocaleTimeString();
+      const time = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
       const placeholder = aiLogsContent.querySelector('.text-muted.small');
       if (placeholder) aiLogsContent.innerHTML = '';
       let html = `<div class="log-section"><div class="log-section-title">[${time}] ${escapeHtml(label)} — `;
@@ -1902,9 +2327,74 @@ ${txText}`;
 
     aiAnalysisClose.addEventListener('click', () => aiAnalysisSection.classList.add('d-none'));
 
+    function normalizeAICategory(cat) {
+      const c = String(cat || '').trim();
+      const map = { 'groceries': 'Groceries', 'food & dining': 'Food & Dining', 'food': 'Food & Dining', 'e-commerce': 'E-commerce & Shopping', 'e-commerce & shopping': 'E-commerce & Shopping', 'shopping': 'E-commerce & Shopping', 'upi': 'UPI & Transfers', 'upi & transfers': 'UPI & Transfers', 'transfers': 'UPI & Transfers', 'entertainment': 'Entertainment', 'income': 'Income', 'investment': 'Investment', 'rent & housing': 'Rent & Housing', 'utilities': 'Utilities', 'transport': 'Transport', 'subscriptions': 'Subscriptions', 'insurance': 'Insurance', 'loan & emi': 'Loan & EMI', 'healthcare': 'Healthcare', 'other': 'Other' };
+      return map[c.toLowerCase()] || (AI_CATEGORIES.includes(c) ? c : 'Other');
+    }
+
+    async function runCategorizeWithAI(apiKey) {
+      if (!analysisData?.parsed?.length) return;
+      categorizeWithAIBtn.disabled = true;
+      const origText = categorizeWithAIBtn.innerHTML;
+      categorizeWithAIBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Categorizing...';
+      const txList = analysisData.parsed.map((p, i) => `${i + 1}. ${p.date || ''} | ${p.narration || ''} | ₹${p.amount} | ${p.type}`).join('\n');
+      const cats = AI_CATEGORIES.join(', ');
+      const prompt = `You are a transaction categorizer. Assign exactly ONE category to each transaction below.
+
+Allowed categories (use ONLY these exact names): ${cats}
+
+Transactions (numbered 1 to N):
+${txList}
+
+Respond with ONLY the category names, one per line, in the same order (line 1 = transaction 1, etc.). No numbering, no explanation. Example:
+Food & Dining
+UPI & Transfers
+E-commerce & Shopping
+Income`;
+
+      appendAiLogs('Categorize', prompt, null, null);
+      debugLog('Categorizing transactions with AI', 'active');
+
+      try {
+        const result = await callGeminiApi(apiKey, prompt);
+        let lines = result.split(/\r?\n/).map(l => l.replace(/^\d+[\.\)]\s*/, '').replace(/^[-*]\s*/, '').replace(/^```\w*\s*|\s*```$/g, '').trim()).filter(Boolean);
+        const filtered = lines.filter(l => /^[a-zA-Z\s&\-]+$/.test(l) || AI_CATEGORIES.some(c => l.toLowerCase().includes(c.toLowerCase())));
+        if (filtered.length >= analysisData.parsed.length) lines = filtered;
+        else if (lines.length >= analysisData.parsed.length) lines = lines.slice(-analysisData.parsed.length);
+        if (lines.length >= analysisData.parsed.length) {
+          for (let i = 0; i < analysisData.parsed.length; i++) {
+            analysisData.parsed[i].category = normalizeAICategory(lines[i] || lines[lines.length - 1]);
+          }
+          analysisData.aiCategorized = true;
+          analysisData = recomputeAggregatesFromParsed(analysisData.parsed);
+          appendAiLogResponse('Categorize', lines.slice(0, analysisData.parsed.length).join('\n'), null);
+          summarySection.classList.remove('d-none');
+          renderSummary();
+          summarySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          toast.classList.add('visible');
+          toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>Categories updated! Summary refreshed.';
+          setTimeout(() => toast.classList.remove('visible'), 2500);
+          debugLog('AI categorization complete', 'success');
+        } else {
+          throw new Error('AI returned fewer categories than transactions. Try again.');
+        }
+      } catch (err) {
+        const msg = err?.message || String(err);
+        appendAiLogResponse('Categorize', null, msg);
+        toast.classList.add('visible');
+        toast.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>' + msg;
+        setTimeout(() => toast.classList.remove('visible'), 4000);
+        debugLog('AI categorization failed', 'error', msg);
+      } finally {
+        categorizeWithAIBtn.disabled = false;
+        categorizeWithAIBtn.innerHTML = origText;
+      }
+    }
+
     function appendChatMessage(role, text) {
       chatPlaceholder?.classList.add('d-none');
-      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const time = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
       const div = document.createElement('div');
       div.className = `chat-msg ${role}`;
       const body = role === 'assistant' ? renderMarkdown(text) : escapeHtml(text).replace(/\n/g, '<br>');
@@ -1938,7 +2428,7 @@ User question: ${question}`;
       debugLog('Chat: sending question to Gemini', 'active');
 
       chatPlaceholder?.classList.add('d-none');
-      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const time = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
       const waitingDiv = document.createElement('div');
       waitingDiv.className = 'chat-msg assistant chat-waiting';
       waitingDiv.innerHTML = `<div class="msg-time">${escapeHtml(time)}</div><div class="msg-body text-muted"><span class="spinner-border spinner-border-sm me-2" role="status"></span>Waiting for Gemini response... <span class="chat-timer">0</span>s</div>`;
@@ -2007,6 +2497,18 @@ User question: ${question}`;
 
     document.querySelectorAll('#chatSuggestions button[data-question]').forEach(btn => {
       btn.addEventListener('click', () => sendChatMessage(btn.dataset.question));
+    });
+
+    categorizeWithAIBtn.addEventListener('click', async () => {
+      if (!analysisData?.parsed?.length) return;
+      const apiKey = getStoredApiKey();
+      if (!apiKey?.trim()) {
+        geminiApiKeyInput.value = '';
+        delete document.getElementById('aiApiKeyModal').dataset.changeKeyOnly;
+        aiApiKeyModal.show();
+        return;
+      }
+      await runCategorizeWithAI(apiKey);
     });
 
     analyseWithAIBtn.addEventListener('click', async () => {
@@ -2220,6 +2722,14 @@ User question: ${question}`;
         }
       }
     });
+
+    (function initFooterDatetime() {
+      const el = document.getElementById('footerDatetime');
+      if (el) {
+        const opts = { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short', hour12: true };
+        el.textContent = new Date().toLocaleString('en-IN', opts);
+      }
+    })();
   </script>
 </body>
 </html>

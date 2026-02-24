@@ -2,7 +2,7 @@
 
 ## Jupiter Bank Statement Analyzer
 
-**Last Updated:** February 19, 2025
+**Last Updated:** February 25, 2026 (IST)
 
 ---
 
@@ -16,6 +16,7 @@
 | **Styling** | CSS3 (custom properties, flexbox, grid, theme vars) |
 | **Script** | JavaScript ES6+ (modules) |
 | **PDF** | PDF.js (Mozilla) v4.0.379 |
+| **Excel** | SheetJS (xlsx) v0.20.3 |
 | **Charts** | Chart.js 4.4.1 |
 | **Font** | Plus Jakarta Sans (Google Fonts) |
 | **Hosting** | Static files; served via any HTTP server |
@@ -27,6 +28,7 @@
 | Dependency | Version | Purpose | Source |
 |------------|---------|---------|--------|
 | pdfjs-dist | 4.0.379 | PDF parsing, decryption, text extraction | jsDelivr CDN |
+| xlsx (SheetJS) | 0.20.3 | Excel .xls/.xlsx parsing | cdn.sheetjs.com |
 | @google/genai | 1.x | Gemini AI (Analyse with AI, Chat with AI) | esm.sh |
 | Bootstrap | 5.3.2 | UI components, layout, utilities | jsDelivr CDN |
 | Bootstrap Icons | 1.11.1 | Icon set | jsDelivr CDN |
@@ -38,6 +40,9 @@
 <!-- PDF.js (ESM) -->
 https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs
 https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs
+
+<!-- SheetJS (Excel) -->
+https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js
 
 <!-- Bootstrap, Icons, Chart.js -->
 Bootstrap 5.3.2, Bootstrap Icons 1.11.1, Chart.js 4.4.1
@@ -171,15 +176,21 @@ Date	Narration	Debit	Credit	Balance
 
 | Function | Purpose |
 |----------|---------|
-| `handleFile(file)` | Async: probe PDF (try load without password); show View or Unlock & View UI |
+| `handleFile(file)` | Async: detect PDF/Excel; probe PDF or show View for Excel |
 | `unlockAndExtract()` | Read file, decrypt (if needed), extract, render; reuses cached doc for unlocked PDFs |
 | `updateUnlockButtonLabel()` | Enable/disable Unlock button when password entered (secured PDFs only) |
 | `extractTables(pdf)` | Extract and split into personalInfo + transactions; includes fallback logic |
 | `groupIntoRows(items)` | Group text items by Y into rows |
 | `renderPersonalInfoTable(data)` | Render Table 1 |
 | `renderTable(data)` | Render Table 2 |
-| `analyzeTransactions(data)` | Categorize transactions; compute summary |
-| `updateCharts()` | Render income/expense, category pie, monthly trend charts |
+| `analyzeTransactions(data)` | Parse DR/Cr columns; categorize transactions; compute summary |
+| `detectColumnIndices(headers)` | Detect Withdrawals, Deposits, Dr/Cr, Particulars, Date |
+| `parseAmount(str)` | Parse INR amounts; preserve decimal (rupees.paisa) |
+| `extractFromExcel(file)` | Parse Excel; lines 1-13 personal, line 16 headers, 17+ transactions |
+| `categorizeNarration(narration, txType)` | Regex-based category from narration; respects DR/Cr-derived type |
+| `runCategorizeWithAI(apiKey)` | Send transactions to Gemini; assign category per row; recompute summary |
+| `recomputeAggregatesFromParsed(parsed)` | Rebuild byCategory, daily/weekly/monthly/yearly from parsed |
+| `updateCharts()` | Render charts; period selector (Daily/Weekly/Monthly/Yearly) |
 | `callGeminiApi(apiKey, prompt)` | Send prompt to Gemini 2.5 Flash; return response text |
 | `runAIAnalysis(apiKey)` | Full analysis flow; update AI Analysis section and logs |
 | `sendChatMessage(question)` | Chat Q&A; send question + transaction data to Gemini |
@@ -194,8 +205,8 @@ Date	Narration	Debit	Credit	Balance
 
 ### Gemini API Configuration
 
-- **Model**: `gemini-2.5-flash`
-- **Config**: `temperature: 0.7`, `maxOutputTokens: 8192`
+- **Model**: User-selectable in AI Setup dropdown; default `gemini-2.5-flash`. Options: `gemini-2.5-flash`, `gemini-3-flash-preview`, `gemini-2.5-pro`, `gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-pro`
+- **Storage**: Model choice stored in `localStorage` under `gemini-model`
 - **API Key**: User-entered in modal; stored in localStorage only
 
 ### PDF Probe Flow (`handleFile`)
@@ -278,6 +289,30 @@ npx serve .
 
 ## 10. AI Features (Gemini)
 
+### Transaction Analysis (DR/Cr & Categorization)
+
+- **Column detection**: `detectColumnIndices()` matches Indian bank headers:
+  - **Withdrawals** = expenses (debit); **Deposits** = income (credit)
+  - **Dr/Cr** = record type (source of truth when present): Dr = debit, Cr = credit
+  - **Particulars** = narration for categorization
+  - Also: `Chq.No/Dr`, `Chq.No/Cr`, `Value Date`, etc.
+- **Amount parsing**: `parseAmount()` handles `₹`, `Rs`, `INR`, commas; preserves decimal (INR: 100.12 = 100 rupees, 12 paisa).
+- **Categories**: Income, Groceries (Blinkit, BigBasket), Food & Dining (Swiggy, Zomato), E-commerce & Shopping (Amazon, Flipkart, Myntra), UPI & Transfers, Entertainment, Utilities, Transport, Subscriptions, Insurance, Loan & EMI, Healthcare, Investment, Other.
+- **DR/CR logic**: Credit (Cr) = money in (income); Debit (Dr) = money out (expense). Categorization respects transaction type from amounts.
+
+### Excel Extraction
+
+- **Layout**: Lines 1–13 = personal info (display only, not used in calculations)
+- **Line 16** = column headers (Value Date, Particulars, Dr/Cr, Withdrawals, Deposits, Balance, etc.)
+- **Lines 17+** = transaction data
+- **SheetJS**: `XLSX.read(arrayBuffer, { type: 'array' })`; `sheet_to_json` with `header: 1`
+
+### Categorize with AI
+
+- Sends parsed transactions (date, narration, amount, type) to Gemini with a fixed category list.
+- AI returns one category per line; `normalizeAICategory()` maps variants to allowed names.
+- `recomputeAggregatesFromParsed()` rebuilds byCategory and monthly/weekly; summary re-renders.
+
 ### Analyse with AI
 
 - Sends full transaction data + analysis prompt to Gemini
@@ -290,8 +325,14 @@ npx serve .
 - Suggested questions: Total spending & income, Monthly spending, Weekly spending, Yearly summary, Top expense categories, Biggest spending areas
 - Responses rendered with markdown; chat history preserved
 
+### Timestamps & Timezone
+
+- Footer "Last updated" and AI log timestamps use `timeZone: 'Asia/Kolkata'` (IST).
+- `toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true })` for chat and logs.
+
 ### AI API Logs
 
+- **Categorize with AI**: Appends Categorize REQUEST and RESPONSE/ERROR.
 - **Analyse with AI**: Replaces logs with REQUEST and RESPONSE
 - **Chat with AI**: Appends each exchange (REQUEST, then RESPONSE/ERROR)
 - Clear and Copy buttons for both Processing Steps and AI API Logs panels
@@ -304,6 +345,7 @@ npx serve .
 |----------|--------------|
 | Wrong/missing password | "Incorrect or missing password. Please try again." |
 | Invalid/corrupt PDF | "Failed to open PDF. [error details]" |
+| Invalid Excel / parse error | "Failed to open Excel file. [error details]" |
 | No tables found | "No table data found in the PDF. The format may not be supported." |
 | Copy failed | "Could not copy. Please select and copy manually." |
 | Gemini API error | "AI analysis failed: [error message]" |

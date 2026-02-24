@@ -2,7 +2,7 @@
 
 ## Jupiter Bank Statement Analyzer
 
-**Last Updated:** February 19, 2025
+**Last Updated:** February 25, 2026 (IST)
 
 ---
 
@@ -26,7 +26,7 @@
 │  │  └─────────────────────────┬────────────────────────────────┘ │ │
 │  │                            │                                  │ │
 │  │  ┌─────────────────────────▼────────────────────────────────┐ │ │
-│  │  │                    PDF.js (CDN)                           │ │ │
+│  │  │                    PDF.js / SheetJS (CDN)                 │ │ │
 │  │  │  getDocument, getPage, getTextContent                     │ │ │
 │  │  └──────────────────────────────────────────────────────────┘ │ │
 │  │                                                               │ │
@@ -45,39 +45,32 @@
 ## 2. Data Flow
 
 ```
-User selects PDF file
+User selects PDF or Excel file
         │
         ▼
 ┌───────────────────┐
-│   handleFile()     │  • Store file ref
-│   (async)          │  • Probe: try load without password
-└────────┬──────────┘
+│   handleFile()     │  • Store file ref; detect type (PDF vs Excel)
+│   (async)          │  • PDF: probe load without password
+└────────┬──────────┘  • Excel: show View immediately (no password)
          │
-         ├── Success ──► pdfIsSecured=false; hide password; show View; cache pdf
-         │
-         └── PASSWORD_REQUIRED ──► pdfIsSecured=true; show password input + Unlock & View
+         ├── PDF Success ──► pdfIsSecured=false; show View; cache pdf
+         ├── PDF PASSWORD_REQUIRED ──► show password input + Unlock & View
+         └── Excel ──► currentFileType='excel'; show View; hide Download Unlocked PDF
                   │
-                  │  User enters password
+                  │  User clicks View / Unlock & View
                   ▼
 ┌───────────────────┐
-│ unlockAndExtract() │  • Unlocked: use cached pdf (skip load)
-└────────┬──────────┘  • Secured: load with password
+│ unlockAndExtract() │  • PDF: pdfjsLib or decrypt; extractTables(pdf)
+└────────┬──────────┘  • Excel: extractFromExcel(file) — lines 1-13 personal, 16+ transactions
          │
-         ├─► Read file.arrayBuffer()
-         ├─► pdfjsLib.getDocument({ data, password })
-         ├─► pdf (decrypted)
+         ├─► PDF: pdfjsLib.getDocument({ data, password })
+         ├─► Excel: XLSX.read(arrayBuffer); slice by EXCEL_PERSONAL_INFO_ROWS, EXCEL_HEADER_ROW
          │
          ▼
-┌───────────────────┐
-│  extractTables()   │
-│  • For each page:  │
-│    - getTextContent
-│    - groupIntoRows
-│    - collect cells
-│  • Split by heuristics:
-│    - Table 1: personalInfo
-│    - Table 2: transactions
-└────────┬──────────┘
+┌───────────────────┐     PDF
+│  extractTables()   │ ◄────────
+│  extractFromExcel()│ ◄──── Excel (lines 1-13, 16+)
+└────────┬──────────┘  Split: personalInfo, transactions
          │
          ▼
 ┌───────────────────┐
@@ -109,9 +102,10 @@ User clicks "Copy Transactions as Excel"
 ├────────────────────────────────────────────────────────────────┤
 │  UploadZone          │  Drop target + file input                   │
 │  PasswordSection     │  Password input + Unlock button              │
-│  PersonalInfoSection │  Table 1 container (sensitive label)       │
+│  PersonalInfoSection │  Table 1; eye icon to show/hide details   │
 │  TransactionsSection │  Table 2 container + loading state          │
 │  SummarySection      │  Financial charts, metrics, categories      │
+│  CategorizeWithAIBtn │  Button to run AI categorization            │
 │  AiAnalysisSection   │  Inline AI analysis (scrollable)            │
 │  ChatWithAISection   │  Chat UI; suggestions; message history     │
 │  DebugPanel          │  Processing steps; Clear/Copy               │
@@ -123,7 +117,8 @@ User clicks "Copy Transactions as Excel"
 │                       State Variables                             │
 ├────────────────────────────────────────────────────────────────┤
 │  currentPdfFile      │  File object or null                        │
-│  currentPdfDoc       │  Cached PDF doc (when unlocked)            │
+│  currentPdfDoc       │  Cached PDF doc (when unlocked)             │
+│  currentFileType     │  'pdf' or 'excel'                           │
 │  pdfIsSecured        │  true = password UI; false = View only     │
 │  personalInfoData    │  Array of rows for Table 1                  │
 │  transactionData     │  Array of rows for Table 2                  │
@@ -134,12 +129,14 @@ User clicks "Copy Transactions as Excel"
 ┌────────────────────────────────────────────────────────────────┐
 │                       Core Functions                              │
 ├────────────────────────────────────────────────────────────────┤
-│  handleFile()        │  Async: probe PDF; show View or Unlock UI   │
-│  unlockAndExtract()  │  Async: decrypt + extract + render          │
-│  extractTables()     │  Parse PDF → { personalInfo, transactions } │
+│  handleFile()        │  Async: probe PDF or accept Excel; show View/Unlock UI │
+│  unlockAndExtract()  │  Async: decrypt/extract (PDF or Excel) + render       │
+│  extractTables()     │  Parse PDF → { personalInfo, transactions }          │
+│  extractFromExcel()  │  Parse Excel (lines 1-13 personal, 16+ transactions) │
 │  groupIntoRows()     │  Cluster text items by Y position           │
-│  callGeminiApi()     │  Send prompt to Gemini; return text         │
+│  callGeminiApi()     │  Send prompt to Gemini (model from selector); return text │
 │  runAIAnalysis()     │  Full analysis; update UI and logs         │
+│  runCategorizeWithAI()│  AI categorization; update parsed & summary │
 │  sendChatMessage()   │  Chat Q&A with Gemini                      │
 │  updateAiLogs()      │  Update/replace AI API Logs                 │
 │  appendAiLogs()      │  Append chat request to AI logs             │
@@ -263,7 +260,7 @@ PDF File (binary)
 | PDF content exposure | Processed only in browser; never sent to server |
 | AI (Gemini) | Transaction data sent to Google; API key local only |
 | Password handling | Used only for PDF.js decrypt; not stored or transmitted |
-| API key | User-entered; stored in localStorage only |
+| API key / model | User-entered key; model selector (default gemini-2.5-flash); both in localStorage |
 | XSS | `escapeHtml()` used for user-generated content in DOM |
 | Sensitive data in copy | Only transactions copied; personal info excluded |
 

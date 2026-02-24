@@ -7,6 +7,31 @@
 
 ## February 18, 2026
 
+### Entry: v1.3.0 — DR/Cr Detection, Categorize with AI, Expanded Categories
+**Prompt:**
+> Improve transaction analysis; fix DR/Cr detection for Indian bank PDFs; add AI categorization; expand categories (Blinkit, UPI, Amazon, Flipkart, e-commerce, Swiggy, BigBasket, Zomato, food, entertainment); update version and datetime to India timezone.
+
+**Solution:**
+- **DR/Cr column detection**: `detectColumnIndices()` now matches `Dr`, `Cr`, `Chq.No/Dr`, `Chq.No/Cr`, `Withdrawals`, `Deposits`; fallback for Amount+DrCr layout.
+- **parseAmount()**: Handles `₹`, `Rs`, `INR`, commas, dashes; Indian number format; skips empty/dash cells.
+- **Expanded CATEGORY_RULES**: Groceries (Blinkit, BigBasket), Food & Dining (Swiggy, Zomato), E-commerce & Shopping (Amazon, Flipkart, Myntra, Meesho), UPI & Transfers, Entertainment; type-aware (income vs expense).
+- **Categorize with AI**: New button; sends transactions to Gemini; returns one category per line; `normalizeAICategory()` maps variants; `recomputeAggregatesFromParsed()` rebuilds summary.
+- **Version 1.3.0**; footer datetime in IST (`timeZone: 'Asia/Kolkata'`); AI logs and chat timestamps in IST.
+- **Documentation**: README, CHANGELOG.md, PRD, TECHNICAL, ARCHITECTURE, CHANGELOG_PROMPTS updated.
+
+---
+
+### Entry: Gemini Model Selector
+**Prompt:**
+> Add options to select which Gemini model; default gemini-2.5-flash. Add gemini-3-flash-preview. Update documentation.
+
+**Solution:**
+- Added Model dropdown in AI Setup card with: Gemini 2.5 Flash (default), Gemini 3 Flash Preview, Gemini 2.5 Pro, Gemini 2.0 Flash, Gemini 1.5 Flash, Gemini 1.5 Pro.
+- Selection stored in `localStorage` (`gemini-model`); applied to both Analyse with AI and Chat with AI.
+- Updated README.md, TECHNICAL.md.
+
+---
+
 ### Entry: API Key Security Fix
 **Prompt:**
 > API key was leaked via public GitHub repo. Make API key fully user-entered; remove api-config.js reliance; add info card with links for getting a key.
@@ -181,8 +206,8 @@
 
 | Feature | Description |
 |---------|-------------|
-| **Transaction Analysis** | Parse debit/credit columns; compute totals and categorize |
-| **Categorization** | Auto-categorize by narration (income, expenses, investment) |
+| **Transaction Analysis** | Parse DR/Cr columns (Indian bank); compute totals and categorize |
+| **Categorization** | Regex + AI: Income, Groceries, Food & Dining, E-commerce, UPI & Transfers, Entertainment, etc. |
 | **Charts** | Income vs expense bar, category pie, monthly trend |
 | **Summary PDF** | Download analysis summary as PDF |
 | **Theme Toggle** | Dark, Light, System with localStorage persistence |
@@ -198,3 +223,4 @@
 | 2025-02-18 | Initial CHANGELOG_PROMPTS.md with three entries |
 | 2025-02-18 | Documentation updates across README, PRD, TECHNICAL, ARCHITECTURE |
 | 2025-02-19 | Entries 4–12: AI features, Chat, Logs, prompts; full documentation refresh |
+| 2026-02-18 | v1.3.0: DR/Cr detection, Categorize with AI, expanded categories, IST timezone; CHANGELOG.md added; documentation updated |
